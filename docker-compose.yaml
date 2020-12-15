@@ -1,0 +1,13 @@
+# for local development
+version: '3.8'
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: taska
+      POSTGRES_USER: taska
+      POSTGRES_PASSWORD: taska
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d

@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package taska.board.proto;
+
+message CreateBoardReq {
+}
+
+message CreateBoardRes {
+}
+
+message ArchiveBoardReq {
+}
+
+message ArchiveBoardRes {
+}
+
+message ReOpenBoardReq {
+}
+
+message ReOpenBoardRes {
+}
+
+message CreateListReq {
+}
+
+message CreateListRes {
+}
+
+message ArchiveListReq {
+}
+
+message ArchiveListRes {
+}
+
+message ReOpenListReq {
+}
+
+message ReOpenListRes {
+}
+
+message CreateCardReq {
+}
+
+message CreateCardRes {
+}
+
+message ArchiveCardReq {
+}
+
+message ArchiveCardRes {
+}
+
+message ReOpenCardReq {
+}
+
+message ReOpenCardRes {
+}
+
+
+
+service GrpcTaskaService {
+  rpc createBoard (CreateBoardReq) returns (CreateBoardRes);
+  rpc archiveBoard (ArchiveBoardReq) returns (ArchiveBoardRes);
+  rpc reOpenBoard (ReOpenBoardReq) returns (ReOpenBoardRes);
+  rpc createList (CreateListReq) returns (CreateListRes);
+  rpc archiveList (ArchiveListReq) returns (ArchiveListRes);
+  rpc reOpenList (ReOpenListReq) returns (ReOpenListRes);
+  rpc createCard (CreateCardReq) returns (CreateCardRes);
+  rpc archiveCard (ArchiveCardReq) returns (ArchiveCardRes);
+  rpc reOpenCard (ReOpenCardReq) returns (ReOpenCardRes);
+}
