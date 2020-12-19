@@ -11,8 +11,8 @@ val LogbackVersion = "1.2.3"
 val SlickVersion = "3.3.3"
 val PostgresqlVersion = "42.2.18"
 val SpringVersion = "5.3.2"
-val ScalaTestVersion = "3.1.0"
-val ScalaCheckVersion = "1.15.1"
+val ScalaTestVersion = "3.2.3"
+val ScalaCheckVersion = "1.15.2"
 
 enablePlugins(AkkaGrpcPlugin, JavaServerAppPackaging)
 
