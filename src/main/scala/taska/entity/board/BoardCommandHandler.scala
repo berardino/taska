@@ -15,7 +15,7 @@ object BoardCommandHandler extends BoardEntity.CommandHandler {
     state match {
       case EmptySate => {
         cmd match {
-          case Create(ctx, replyTo, title, description) => {
+          case CreateBoard(ctx, replyTo, title, description) => {
             Effect
               .persist(Created(EventContext(ctx), title, description))
               .thenReply(replyTo)(_ => Done)
@@ -25,27 +25,27 @@ object BoardCommandHandler extends BoardEntity.CommandHandler {
       }
       case CreatedBoardState(_, _, _, _) => {
         cmd match {
-          case Archive(ctx, replyTo) => {
+          case ArchiveBoard(ctx, replyTo) => {
             Effect
               .persist(Archived(EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
-          case UnArchive(ctx, replyTo) => {
+          case UnArchiveBoard(ctx, replyTo) => {
             Effect
               .persist(UnArchived(EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
-          case AddList(ctx, replyTo, listId) => {
+          case BoardAddList(ctx, replyTo, listId) => {
             Effect
               .persist(ListAdded(EventContext(ctx), listId))
               .thenReply(replyTo)(_ => Done)
           }
-          case Update(ctx, replyTo, updates) => {
+          case UpdateBoard(ctx, replyTo, updates) => {
             val events = updates.map {
-              case UpdateTitle(title) => {
+              case UpdateBoardTitle(title) => {
                 TitleUpdated(EventContext(ctx), title)
               }
-              case UpdateDescription(description) => {
+              case UpdateBoardDescription(description) => {
                 DescriptionUpdated(EventContext(ctx), description)
               }
             }

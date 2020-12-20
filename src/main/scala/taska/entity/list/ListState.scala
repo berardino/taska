@@ -12,8 +12,8 @@ object ListState {
   case object EmptySate extends ListState {
     override def applyEvent(event: ListEvent): ListState = {
       event match {
-        case Created(_, title) => {
-          CreatedListState(title)
+        case Created(_, boardId, title) => {
+          CreatedListState(boardId, title)
         }
         case _ => {
           throw new IllegalStateException(
@@ -25,6 +25,7 @@ object ListState {
   }
 
   case class CreatedListState(
+      boardId: String,
       title: String,
       cards: Seq[String] = Seq.empty,
       status: ListStatus = ListStatus.Active

@@ -19,17 +19,20 @@ class ListEntitySpec
   val ctx: RequestContext = RequestContext()
   val evtCtx: EventContext = EventContext(ctx)
   val title: String = genStr()
+  val boardId: String = genStr()
 
   "list" must {
 
     "be created with a title, no cards and in open state" in {
       val result =
-        behaviorTestKit.runCommand(reply => Create(ctx, reply, title))
+        behaviorTestKit.runCommand(reply =>
+          CreateList(ctx, reply, boardId, title)
+        )
 
       result.reply should be(Done)
-      result.event should be(Created(evtCtx, title))
+      result.event should be(Created(evtCtx, boardId, title))
       result.stateOfType[CreatedListState] should be(
-        CreatedListState(title, Seq.empty, ListStatus.Active)
+        CreatedListState(boardId, title, Seq.empty, ListStatus.Active)
       )
     }
   }
@@ -38,7 +41,7 @@ class ListEntitySpec
 
     "be archived" in {
       val result =
-        behaviorTestKit.runCommand(reply => Archive(ctx, reply))
+        behaviorTestKit.runCommand(reply => ArchiveList(ctx, reply))
 
       result.reply should be(Done)
       result.event should be(Archived(evtCtx))
@@ -49,7 +52,7 @@ class ListEntitySpec
 
     "be unarchived" in {
       val result =
-        behaviorTestKit.runCommand(reply => UnArchive(ctx, reply))
+        behaviorTestKit.runCommand(reply => UnArchiveList(ctx, reply))
 
       result.reply should be(Done)
       result.event should be(UnArchived(evtCtx))
@@ -64,7 +67,7 @@ class ListEntitySpec
       val newTitle = genStr()
       val result =
         behaviorTestKit.runCommand(reply =>
-          Update(ctx, reply, Seq(UpdateTitle(newTitle)))
+          UpdateList(ctx, reply, Seq(UpdateListTitle(newTitle)))
         )
 
       result.reply should be(Done)

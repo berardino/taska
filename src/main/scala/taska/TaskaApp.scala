@@ -7,7 +7,7 @@ import org.springframework.context.annotation.{
 }
 import org.springframework.stereotype.Component
 import taska.entity.EntityShardingRegistry
-import taska.entity.board.BoardCommand.Create
+import taska.entity.board.BoardCommand.CreateBoard
 import taska.entity.board.BoardEntitySharding
 import taska.grpc.GrpcServer
 import taska.request.RequestContext
@@ -35,7 +35,7 @@ class TaskaEntryPoint(
   implicit val ctx: RequestContext = RequestContext()
   boardEntityProtocol.runCommand(
     "1",
-    replyTo => Create(ctx, replyTo, "ciao", Some("desc"))
+    replyTo => CreateBoard(ctx, replyTo, "ciao", Some("desc"))
   )
 
   grpcServer.start()

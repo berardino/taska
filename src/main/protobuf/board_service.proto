@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+package taska.board.proto;
+
+message CreateBoardReq {
+  string title = 1;
+  google.protobuf.StringValue description = 2;
+}
+message CreateBoardRes {
+}
+message ArchiveBoardReq {
+}
+message ArchiveBoardRes {
+}
+message UnArchiveBoardReq {
+}
+message UnArchiveBoardRes {
+}
+message UpdateBoardReq {
+}
+message UpdateBoardRes {
+}
+
+service GrpcBoardService {
+  rpc Create (CreateBoardReq) returns (CreateBoardRes);
+  rpc Archive (ArchiveBoardReq) returns (ArchiveBoardRes);
+  rpc UnArchive (UnArchiveBoardReq) returns (UnArchiveBoardRes);
+  rpc Update (UpdateBoardReq) returns (UpdateBoardRes);
+}

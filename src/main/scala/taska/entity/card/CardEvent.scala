@@ -8,6 +8,7 @@ object CardEvent {
 
   case class Created(
       ctx: EventContext,
+      listId: String,
       title: String,
       description: Option[String]
   ) extends CardEvent

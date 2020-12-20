@@ -10,43 +10,44 @@ sealed trait CardCommand extends Command with CommandReply[Done]
 
 object CardCommand {
 
-  case class Create(
+  case class CreateCard(
       ctx: RequestContext,
       replyTo: ActorRef[Done],
+      listId: String,
       title: String,
       description: Option[String]
   ) extends CardCommand
 
-  case class Archive(ctx: RequestContext, replyTo: ActorRef[Done])
+  case class ArchiveCard(ctx: RequestContext, replyTo: ActorRef[Done])
       extends CardCommand
 
-  case class UnArchive(ctx: RequestContext, replyTo: ActorRef[Done])
+  case class UnArchiveCard(ctx: RequestContext, replyTo: ActorRef[Done])
       extends CardCommand
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
     Array(
-      new JsonSubTypes.Type(value = classOf[UpdateTitle], name = "title"),
+      new JsonSubTypes.Type(value = classOf[UpdateCardTitle], name = "title"),
       new JsonSubTypes.Type(
-        value = classOf[UpdateDescription],
+        value = classOf[UpdateCardDescription],
         name = "description"
       )
     )
   )
-  sealed trait UpdateCommand
+  sealed trait UpdateCardCommand
 
-  case class UpdateTitle(
+  case class UpdateCardTitle(
       title: String
-  ) extends UpdateCommand
+  ) extends UpdateCardCommand
 
-  case class UpdateDescription(
+  case class UpdateCardDescription(
       description: Option[String]
-  ) extends UpdateCommand
+  ) extends UpdateCardCommand
 
-  case class Update(
+  case class UpdateCard(
       ctx: RequestContext,
       replyTo: ActorRef[Done],
-      updates: Seq[UpdateCommand]
+      updates: Seq[UpdateCardCommand]
   ) extends CardCommand
 
 }

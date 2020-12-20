@@ -25,7 +25,7 @@ class BoardEntitySpec
       val title = genStr()
       val description = genOptStr()
       val result = behaviorTestKit.runCommand(reply =>
-        Create(ctx, reply, title, description)
+        CreateBoard(ctx, reply, title, description)
       )
 
       result.reply should be(Done)
@@ -40,7 +40,7 @@ class BoardEntitySpec
 
     "be archived" in {
       val result =
-        behaviorTestKit.runCommand(reply => Archive(ctx, reply))
+        behaviorTestKit.runCommand(reply => ArchiveBoard(ctx, reply))
 
       result.reply should be(Done)
       result.event should be(Archived(evtCtx))
@@ -51,7 +51,7 @@ class BoardEntitySpec
 
     "be unarchived" in {
       val result =
-        behaviorTestKit.runCommand(reply => UnArchive(ctx, reply))
+        behaviorTestKit.runCommand(reply => UnArchiveBoard(ctx, reply))
 
       result.reply should be(Done)
       result.event should be(UnArchived(evtCtx))
@@ -65,7 +65,7 @@ class BoardEntitySpec
     "be added" in {
       val listId = genStr()
       val result =
-        behaviorTestKit.runCommand(reply => AddList(ctx, reply, listId))
+        behaviorTestKit.runCommand(reply => BoardAddList(ctx, reply, listId))
 
       result.reply should be(Done)
       result.event should be(ListAdded(evtCtx, listId))
@@ -80,7 +80,7 @@ class BoardEntitySpec
       val newTitle = genStr()
       val result =
         behaviorTestKit.runCommand(reply =>
-          Update(ctx, reply, Seq(UpdateTitle(newTitle)))
+          UpdateBoard(ctx, reply, Seq(UpdateBoardTitle(newTitle)))
         )
 
       result.reply should be(Done)
@@ -96,7 +96,7 @@ class BoardEntitySpec
       val newDescription = genOptStr()
       val result =
         behaviorTestKit.runCommand(reply =>
-          Update(ctx, reply, Seq(UpdateDescription(newDescription)))
+          UpdateBoard(ctx, reply, Seq(UpdateBoardDescription(newDescription)))
         )
 
       result.reply should be(Done)

@@ -60,6 +60,8 @@ libraryDependencies ++= Seq(
   // Logging
   "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion,
   "ch.qos.logback" % "logback-classic" % LogbackVersion,
+  // Proto
+  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
   // Test
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
   "com.typesafe.akka" %% "akka-persistence-testkit" % AkkaVersion % Test,

@@ -4,11 +4,11 @@ import akka.Done
 import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
 import taska.cqrs.EventContext
 import taska.entity.list.ListCommand.{
-  Archive,
-  Create,
-  UnArchive,
-  Update,
-  UpdateTitle
+  ArchiveList,
+  CreateList,
+  UnArchiveList,
+  UpdateList,
+  UpdateListTitle
 }
 import taska.entity.list.ListEvent.{Archived, Created, TitleUpdated, UnArchived}
 import taska.entity.list.ListState.{CreatedListState, EmptySate}
@@ -21,29 +21,29 @@ object ListCommandHandler extends ListEntity.CommandHandler {
     state match {
       case EmptySate => {
         cmd match {
-          case Create(ctx, replyTo, title) => {
+          case CreateList(ctx, replyTo, boardId, title) => {
             Effect
-              .persist(Created(EventContext(ctx), title))
+              .persist(Created(EventContext(ctx), boardId, title))
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedListState(_, _, _) => {
+      case CreatedListState(_, _, _, _) => {
         cmd match {
-          case Archive(ctx, replyTo) => {
+          case ArchiveList(ctx, replyTo) => {
             Effect
               .persist(Archived(EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
-          case UnArchive(ctx, replyTo) => {
+          case UnArchiveList(ctx, replyTo) => {
             Effect
               .persist(UnArchived(EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
-          case Update(ctx, replyTo, updates) => {
+          case UpdateList(ctx, replyTo, updates) => {
             val events = updates.map {
-              case UpdateTitle(title) => {
+              case UpdateListTitle(title) => {
                 TitleUpdated(EventContext(ctx), title)
               }
             }

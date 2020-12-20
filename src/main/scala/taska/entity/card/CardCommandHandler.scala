@@ -15,32 +15,32 @@ object CardCommandHandler extends CardEntity.CommandHandler {
     state match {
       case EmptySate => {
         cmd match {
-          case Create(ctx, replyTo, title, description) => {
+          case CreateCard(ctx, replyTo, listId, title, description) => {
             Effect
-              .persist(Created(EventContext(ctx), title, description))
+              .persist(Created(EventContext(ctx), listId, title, description))
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedCardState(_, _, _) => {
+      case CreatedCardState(_, _, _, _) => {
         cmd match {
-          case Archive(ctx, replyTo) => {
+          case ArchiveCard(ctx, replyTo) => {
             Effect
               .persist(Archived(EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
-          case UnArchive(ctx, replyTo) => {
+          case UnArchiveCard(ctx, replyTo) => {
             Effect
               .persist(UnArchived(EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
-          case Update(ctx, replyTo, updates) => {
+          case UpdateCard(ctx, replyTo, updates) => {
             val events = updates.map {
-              case UpdateTitle(title) => {
+              case UpdateCardTitle(title) => {
                 TitleUpdated(EventContext(ctx), title)
               }
-              case UpdateDescription(description) => {
+              case UpdateCardDescription(description) => {
                 DescriptionUpdated(EventContext(ctx), description)
               }
             }

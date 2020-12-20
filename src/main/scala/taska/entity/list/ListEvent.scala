@@ -6,7 +6,8 @@ sealed trait ListEvent extends Event
 
 object ListEvent {
 
-  case class Created(ctx: EventContext, title: String) extends ListEvent
+  case class Created(ctx: EventContext, boardId: String, title: String)
+      extends ListEvent
 
   case class Archived(ctx: EventContext) extends ListEvent
 

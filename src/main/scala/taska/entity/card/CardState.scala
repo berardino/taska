@@ -18,8 +18,8 @@ object CardState {
   case object EmptySate extends CardState {
     override def applyEvent(event: CardEvent): CardState = {
       event match {
-        case Created(_, title, description) => {
-          CreatedCardState(title, description)
+        case Created(_, listId, title, description) => {
+          CreatedCardState(listId, title, description)
         }
         case _ => {
           throw new IllegalStateException(
@@ -31,6 +31,7 @@ object CardState {
   }
 
   case class CreatedCardState(
+      listId: String,
       title: String,
       description: Option[String],
       status: CardStatus = CardStatus.Active

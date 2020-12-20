@@ -10,33 +10,34 @@ sealed trait ListCommand extends Command with CommandReply[Done]
 
 object ListCommand {
 
-  case class Create(
+  case class CreateList(
       ctx: RequestContext,
       replyTo: ActorRef[Done],
+      boardId: String,
       title: String
   ) extends ListCommand
 
-  case class Archive(ctx: RequestContext, replyTo: ActorRef[Done])
+  case class ArchiveList(ctx: RequestContext, replyTo: ActorRef[Done])
       extends ListCommand
 
-  case class UnArchive(ctx: RequestContext, replyTo: ActorRef[Done])
+  case class UnArchiveList(ctx: RequestContext, replyTo: ActorRef[Done])
       extends ListCommand
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
     Array(
-      new JsonSubTypes.Type(value = classOf[UpdateTitle], name = "title")
+      new JsonSubTypes.Type(value = classOf[UpdateListTitle], name = "title")
     )
   )
-  sealed trait UpdateCommand
-  case class UpdateTitle(
+  sealed trait UpdateListCommand
+  case class UpdateListTitle(
       title: String
-  ) extends UpdateCommand
+  ) extends UpdateListCommand
 
-  case class Update(
+  case class UpdateList(
       ctx: RequestContext,
       replyTo: ActorRef[Done],
-      updates: Seq[UpdateCommand]
+      updates: Seq[UpdateListCommand]
   ) extends ListCommand
 
 }

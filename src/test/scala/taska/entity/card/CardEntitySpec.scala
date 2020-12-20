@@ -19,6 +19,7 @@ class CardEntitySpec
   val ctx: RequestContext = RequestContext()
   val evtCtx: EventContext = EventContext(ctx)
   val title: String = genStr()
+  val listId: String = genStr()
   val description: Option[String] = genOptStr()
 
   "card" must {
@@ -26,13 +27,13 @@ class CardEntitySpec
     "be created with a title and optionally a description, no cards and in active state" in {
       val result =
         behaviorTestKit.runCommand(reply =>
-          Create(ctx, reply, title, description)
+          CreateCard(ctx, reply, listId, title, description)
         )
 
       result.reply should be(Done)
-      result.event should be(Created(evtCtx, title, description))
+      result.event should be(Created(evtCtx, listId, title, description))
       result.stateOfType[CreatedCardState] should be(
-        CreatedCardState(title, description, CardStatus.Active)
+        CreatedCardState(listId, title, description, CardStatus.Active)
       )
     }
   }
@@ -41,7 +42,7 @@ class CardEntitySpec
 
     "be archived" in {
       val result =
-        behaviorTestKit.runCommand(reply => Archive(ctx, reply))
+        behaviorTestKit.runCommand(reply => ArchiveCard(ctx, reply))
 
       result.reply should be(Done)
       result.event should be(Archived(evtCtx))
@@ -52,7 +53,7 @@ class CardEntitySpec
 
     "be unarchived" in {
       val result =
-        behaviorTestKit.runCommand(reply => UnArchive(ctx, reply))
+        behaviorTestKit.runCommand(reply => UnArchiveCard(ctx, reply))
 
       result.reply should be(Done)
       result.event should be(UnArchived(evtCtx))
@@ -67,7 +68,7 @@ class CardEntitySpec
       val newTitle = genStr()
       val result =
         behaviorTestKit.runCommand(reply =>
-          Update(ctx, reply, Seq(UpdateTitle(newTitle)))
+          UpdateCard(ctx, reply, Seq(UpdateCardTitle(newTitle)))
         )
 
       result.reply should be(Done)
@@ -83,7 +84,7 @@ class CardEntitySpec
       val newDescription = genOptStr()
       val result =
         behaviorTestKit.runCommand(reply =>
-          Update(ctx, reply, Seq(UpdateDescription(newDescription)))
+          UpdateCard(ctx, reply, Seq(UpdateCardDescription(newDescription)))
         )
 
       result.reply should be(Done)

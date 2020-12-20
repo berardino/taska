@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package taska.list.proto;
+
+message CreateListReq {
+  string board_id = 1;
+  string title = 2;
+}
+message CreateListRes {
+}
+message ArchiveListReq {
+}
+message ArchiveListRes {
+}
+message UnArchiveListReq {
+}
+message UnArchiveListRes {
+}
+message UpdateListReq {
+}
+message UpdateListRes {
+}
+
+service GrpcListService {
+  rpc Create (CreateListReq) returns (CreateListRes);
+  rpc Archive (ArchiveListReq) returns (ArchiveListRes);
+  rpc UnArchive (UnArchiveListReq) returns (UnArchiveListRes);
+  rpc Update (UpdateListReq) returns (UpdateListRes);
+}
