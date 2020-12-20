@@ -3,8 +3,8 @@ package taska.entity.card
 import akka.Done
 import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
 import taska.cqrs.EventContext
-import taska.entity.card.CardCommand.{Archive, Create, UnArchive}
-import taska.entity.card.CardEvent.{Archived, Created, UnArchived}
+import taska.entity.card.CardCommand._
+import taska.entity.card.CardEvent._
 import taska.entity.card.CardState.{CreatedCardState, EmptySate}
 
 object CardCommandHandler extends CardEntity.CommandHandler {
@@ -33,6 +33,19 @@ object CardCommandHandler extends CardEntity.CommandHandler {
           case UnArchive(ctx, replyTo) => {
             Effect
               .persist(UnArchived(EventContext(ctx)))
+              .thenReply(replyTo)(_ => Done)
+          }
+          case Update(ctx, replyTo, updates) => {
+            val events = updates.map {
+              case UpdateTitle(title) => {
+                TitleUpdated(EventContext(ctx), title)
+              }
+              case UpdateDescription(description) => {
+                DescriptionUpdated(EventContext(ctx), description)
+              }
+            }
+            Effect
+              .persist(events)
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()

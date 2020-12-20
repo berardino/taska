@@ -20,7 +20,7 @@ object BoardEvent {
 
   case class ListAdded(ctx: EventContext, listId: String) extends BoardEvent
 
-  case class NameUpdated(ctx: EventContext, name: String) extends BoardEvent
+  case class TitleUpdated(ctx: EventContext, title: String) extends BoardEvent
 
   case class DescriptionUpdated(ctx: EventContext, description: Option[String])
       extends BoardEvent

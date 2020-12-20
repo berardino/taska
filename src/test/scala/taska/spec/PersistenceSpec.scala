@@ -8,9 +8,10 @@ import akka.persistence.testkit.scaladsl.EventSourcedBehaviorTestKit.Serializati
 import com.typesafe.config.ConfigFactory
 import taska.cqrs.{Command, Event}
 import taska.serialization.CborSerializable
+import com.typesafe.config.Config
 
 object PersistenceSpec {
-  val config = ConfigFactory
+  val config: Config = ConfigFactory
     .parseString(s"""
     akka.actor.serialization-bindings {
       "${classOf[CborSerializable].getName}" = jackson-cbor
@@ -23,7 +24,7 @@ abstract class PersistenceSpec[C <: Command, E <: Event, S](
     behavior: Behavior[C]
 ) extends ScalaTestWithActorTestKit(PersistenceSpec.config) {
 
-  lazy val behaviorTestKit =
+  lazy val behaviorTestKit: EventSourcedBehaviorTestKit[C, E, S] =
     EventSourcedBehaviorTestKit[C, E, S](
       system,
       behavior,

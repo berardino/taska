@@ -3,7 +3,7 @@ package taska.entity.list
 import taska.cqrs.EventState
 import taska.entity.list.ListEnum.ListStatus
 import taska.entity.list.ListEnum.ListStatus.ListStatus
-import taska.entity.list.ListEvent.{Archived, Created, UnArchived}
+import taska.entity.list.ListEvent.{Archived, Created, TitleUpdated, UnArchived}
 
 sealed trait ListState extends EventState[ListEvent, ListState]
 
@@ -36,6 +36,9 @@ object ListState {
         }
         case UnArchived(_) => {
           copy(status = ListStatus.Active)
+        }
+        case TitleUpdated(_, title) => {
+          copy(title = title)
         }
         case _ => {
           throw new IllegalStateException(

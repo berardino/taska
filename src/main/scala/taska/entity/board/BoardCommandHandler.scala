@@ -42,8 +42,8 @@ object BoardCommandHandler extends BoardEntity.CommandHandler {
           }
           case Update(ctx, replyTo, updates) => {
             val events = updates.map {
-              case UpdateName(name) => {
-                NameUpdated(EventContext(ctx), name)
+              case UpdateTitle(title) => {
+                TitleUpdated(EventContext(ctx), title)
               }
               case UpdateDescription(description) => {
                 DescriptionUpdated(EventContext(ctx), description)

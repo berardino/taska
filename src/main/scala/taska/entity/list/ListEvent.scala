@@ -12,4 +12,5 @@ object ListEvent {
 
   case class UnArchived(ctx: EventContext) extends ListEvent
 
+  case class TitleUpdated(ctx: EventContext, title: String) extends ListEvent
 }

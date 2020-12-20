@@ -2,9 +2,9 @@ package taska.entity.list
 
 import akka.Done
 import taska.cqrs.EventContext
-import taska.entity.list.ListCommand.{Archive, Create, UnArchive}
+import taska.entity.list.ListCommand._
 import taska.entity.list.ListEnum.ListStatus
-import taska.entity.list.ListEvent.{Archived, Created, UnArchived}
+import taska.entity.list.ListEvent.{Archived, Created, TitleUpdated, UnArchived}
 import taska.entity.list.ListState.CreatedListState
 import taska.gen.Synth
 import taska.request.RequestContext
@@ -16,13 +16,13 @@ class ListEntitySpec
     )
     with UnitSpec {
 
-  val ctx = RequestContext()
-  val evtCtx = EventContext(ctx)
-  val title = genStr()
+  val ctx: RequestContext = RequestContext()
+  val evtCtx: EventContext = EventContext(ctx)
+  val title: String = genStr()
 
   "list" must {
 
-    "be created with the given name, no cards and must be in open state" in {
+    "be created with a title, no cards and in open state" in {
       val result =
         behaviorTestKit.runCommand(reply => Create(ctx, reply, title))
 
@@ -34,7 +34,7 @@ class ListEntitySpec
     }
   }
 
-  "list".can {
+  "list" can {
 
     "be archived" in {
       val result =
@@ -47,7 +47,7 @@ class ListEntitySpec
       )
     }
 
-    "be re-opened" in {
+    "be unarchived" in {
       val result =
         behaviorTestKit.runCommand(reply => UnArchive(ctx, reply))
 
@@ -55,6 +55,22 @@ class ListEntitySpec
       result.event should be(UnArchived(evtCtx))
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(status = ListStatus.Active)
+      )
+    }
+  }
+
+  "list title" can {
+    "be updated" in {
+      val newTitle = genStr()
+      val result =
+        behaviorTestKit.runCommand(reply =>
+          Update(ctx, reply, Seq(UpdateTitle(newTitle)))
+        )
+
+      result.reply should be(Done)
+      result.event should be(TitleUpdated(evtCtx, newTitle))
+      result.stateOfType[CreatedListState] should be(
+        getState[CreatedListState].copy(title = newTitle)
       )
     }
   }

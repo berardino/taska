@@ -2,6 +2,7 @@ package taska.entity.board
 
 import akka.Done
 import akka.actor.typed.ActorRef
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import taska.cqrs.{Command, CommandReply}
 import taska.request.RequestContext
 
@@ -12,7 +13,7 @@ object BoardCommand {
   case class Create(
       ctx: RequestContext,
       replyTo: ActorRef[Done],
-      name: String,
+      title: String,
       description: Option[String] = None
   ) extends BoardCommand
 
@@ -28,9 +29,20 @@ object BoardCommand {
       listId: String
   ) extends BoardCommand
 
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+  @JsonSubTypes(
+    Array(
+      new JsonSubTypes.Type(value = classOf[UpdateTitle], name = "title"),
+      new JsonSubTypes.Type(
+        value = classOf[UpdateDescription],
+        name = "description"
+      )
+    )
+  )
   sealed trait UpdateCommand
-  case class UpdateName(
-      name: String
+
+  case class UpdateTitle(
+      title: String
   ) extends UpdateCommand
 
   case class UpdateDescription(

@@ -16,4 +16,8 @@ object CardEvent {
 
   case class UnArchived(ctx: EventContext) extends CardEvent
 
+  case class TitleUpdated(ctx: EventContext, title: String) extends CardEvent
+
+  case class DescriptionUpdated(ctx: EventContext, description: Option[String])
+      extends CardEvent
 }

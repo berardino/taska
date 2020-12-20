@@ -16,12 +16,12 @@ class BoardEntitySpec
     )
     with UnitSpec {
 
-  val ctx = RequestContext()
-  val evtCtx = EventContext(ctx)
+  val ctx: RequestContext = RequestContext()
+  val evtCtx: EventContext = EventContext(ctx)
 
   "board" must {
 
-    "be created with the given title and description. No lists and must not be closed." in {
+    "be created with a title and optionally a description,no lists and in status active" in {
       val title = genStr()
       val description = genOptStr()
       val result = behaviorTestKit.runCommand(reply =>
@@ -36,7 +36,7 @@ class BoardEntitySpec
     }
   }
 
-  "board".can {
+  "board" can {
 
     "be archived" in {
       val result =
@@ -49,7 +49,7 @@ class BoardEntitySpec
       )
     }
 
-    "be re-opened" in {
+    "be unarchived" in {
       val result =
         behaviorTestKit.runCommand(reply => UnArchive(ctx, reply))
 
@@ -61,7 +61,7 @@ class BoardEntitySpec
     }
   }
 
-  "list".can {
+  "list" can {
     "be added" in {
       val listId = genStr()
       val result =
@@ -75,26 +75,28 @@ class BoardEntitySpec
     }
   }
 
-  "board name".can {
+  "board title" can {
     "be updated" in {
-      val newName = genStr()
+      val newTitle = genStr()
       val result =
-        behaviorTestKit.runCommand(reply => UpdateName(ctx, reply, newName))
+        behaviorTestKit.runCommand(reply =>
+          Update(ctx, reply, Seq(UpdateTitle(newTitle)))
+        )
 
       result.reply should be(Done)
-      result.event should be(NameUpdated(evtCtx, newName))
+      result.event should be(TitleUpdated(evtCtx, newTitle))
       result.stateOfType[CreatedBoardState] should be(
-        getState[CreatedBoardState].copy(title = newName)
+        getState[CreatedBoardState].copy(title = newTitle)
       )
     }
   }
 
-  "board description".can {
+  "board description" can {
     "be updated" in {
       val newDescription = genOptStr()
       val result =
         behaviorTestKit.runCommand(reply =>
-          UpdateDescription(ctx, reply, newDescription)
+          Update(ctx, reply, Seq(UpdateDescription(newDescription)))
         )
 
       result.reply should be(Done)

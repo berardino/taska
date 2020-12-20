@@ -3,7 +3,13 @@ package taska.entity.card
 import taska.cqrs.EventState
 import taska.entity.card.CardEnum.CardStatus
 import taska.entity.card.CardEnum.CardStatus.CardStatus
-import taska.entity.card.CardEvent.{Archived, Created, UnArchived}
+import taska.entity.card.CardEvent.{
+  Archived,
+  Created,
+  DescriptionUpdated,
+  TitleUpdated,
+  UnArchived
+}
 
 sealed trait CardState extends EventState[CardEvent, CardState]
 
@@ -36,6 +42,12 @@ object CardState {
         }
         case UnArchived(_) => {
           copy(status = CardStatus.Active)
+        }
+        case TitleUpdated(_, name) => {
+          copy(title = name)
+        }
+        case DescriptionUpdated(_, description) => {
+          copy(description = description)
         }
         case _ => {
           throw new IllegalStateException(

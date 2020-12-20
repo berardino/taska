@@ -41,7 +41,7 @@ object BoardState {
         case ListAdded(_, listId) => {
           copy(lists = this.lists ++ List(listId))
         }
-        case NameUpdated(_, name) => {
+        case TitleUpdated(_, name) => {
           copy(title = name)
         }
         case DescriptionUpdated(_, description) => {
