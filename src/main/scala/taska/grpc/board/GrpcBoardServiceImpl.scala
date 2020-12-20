@@ -28,12 +28,13 @@ class GrpcBoardServiceImpl(
   }
 
   override def create(req: CreateBoardReq): Future[CreateBoardRes] = {
-    val boardId = UUID.randomUUID().toString
+    val entityId = UUID.randomUUID().toString
     val ctx = RequestContext()
     entity
       .runCommand(
-        boardId,
-        replyTo => CreateBoard(ctx, replyTo, req.title, req.description)
+        entityId,
+        replyTo =>
+          CreateBoard(entityId, ctx, replyTo, req.title, req.description)
       )
       .map(_ => CreateBoardRes())
   }

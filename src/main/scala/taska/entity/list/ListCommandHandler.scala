@@ -2,15 +2,14 @@ package taska.entity.list
 
 import akka.Done
 import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
-import taska.cqrs.EventContext
-import taska.entity.list.ListCommand.{
-  ArchiveList,
-  CreateList,
-  UnArchiveList,
-  UpdateList,
-  UpdateListTitle
+import taska.entity.EventContext
+import taska.entity.list.ListCommand._
+import taska.entity.list.ListEvent.{
+  ListArchived,
+  ListCreated,
+  ListTitleUpdated,
+  ListUnArchived
 }
-import taska.entity.list.ListEvent.{Archived, Created, TitleUpdated, UnArchived}
 import taska.entity.list.ListState.{CreatedListState, EmptySate}
 
 object ListCommandHandler extends ListEntity.CommandHandler {
@@ -21,30 +20,30 @@ object ListCommandHandler extends ListEntity.CommandHandler {
     state match {
       case EmptySate => {
         cmd match {
-          case CreateList(ctx, replyTo, boardId, title) => {
+          case CreateList(entityId, ctx, replyTo, boardId, title) => {
             Effect
-              .persist(Created(EventContext(ctx), boardId, title))
+              .persist(ListCreated(EventContext(ctx), entityId, boardId, title))
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedListState(_, _, _, _) => {
+      case CreatedListState(entityId, _, _, _, _) => {
         cmd match {
           case ArchiveList(ctx, replyTo) => {
             Effect
-              .persist(Archived(EventContext(ctx)))
+              .persist(ListArchived(EventContext(ctx), entityId))
               .thenReply(replyTo)(_ => Done)
           }
           case UnArchiveList(ctx, replyTo) => {
             Effect
-              .persist(UnArchived(EventContext(ctx)))
+              .persist(ListUnArchived(EventContext(ctx), entityId))
               .thenReply(replyTo)(_ => Done)
           }
           case UpdateList(ctx, replyTo, updates) => {
             val events = updates.map {
               case UpdateListTitle(title) => {
-                TitleUpdated(EventContext(ctx), title)
+                ListTitleUpdated(EventContext(ctx), entityId, title)
               }
             }
             Effect

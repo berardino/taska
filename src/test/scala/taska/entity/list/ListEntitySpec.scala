@@ -1,10 +1,15 @@
 package taska.entity.list
 
 import akka.Done
-import taska.cqrs.EventContext
+import taska.entity.EventContext
 import taska.entity.list.ListCommand._
 import taska.entity.list.ListEnum.ListStatus
-import taska.entity.list.ListEvent.{Archived, Created, TitleUpdated, UnArchived}
+import taska.entity.list.ListEvent.{
+  ListArchived,
+  ListCreated,
+  ListTitleUpdated,
+  ListUnArchived
+}
 import taska.entity.list.ListState.CreatedListState
 import taska.gen.Synth
 import taska.request.RequestContext
@@ -16,6 +21,7 @@ class ListEntitySpec
     )
     with UnitSpec {
 
+  val entityId: String = genStr()
   val ctx: RequestContext = RequestContext()
   val evtCtx: EventContext = EventContext(ctx)
   val title: String = genStr()
@@ -26,13 +32,13 @@ class ListEntitySpec
     "be created with a title, no cards and in open state" in {
       val result =
         behaviorTestKit.runCommand(reply =>
-          CreateList(ctx, reply, boardId, title)
+          CreateList(entityId, ctx, reply, boardId, title)
         )
 
       result.reply should be(Done)
-      result.event should be(Created(evtCtx, boardId, title))
+      result.event should be(ListCreated(evtCtx, entityId, boardId, title))
       result.stateOfType[CreatedListState] should be(
-        CreatedListState(boardId, title, Seq.empty, ListStatus.Active)
+        CreatedListState(entityId, boardId, title, Seq.empty, ListStatus.Active)
       )
     }
   }
@@ -44,7 +50,7 @@ class ListEntitySpec
         behaviorTestKit.runCommand(reply => ArchiveList(ctx, reply))
 
       result.reply should be(Done)
-      result.event should be(Archived(evtCtx))
+      result.event should be(ListArchived(evtCtx, entityId))
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(status = ListStatus.Archived)
       )
@@ -55,7 +61,7 @@ class ListEntitySpec
         behaviorTestKit.runCommand(reply => UnArchiveList(ctx, reply))
 
       result.reply should be(Done)
-      result.event should be(UnArchived(evtCtx))
+      result.event should be(ListUnArchived(evtCtx, entityId))
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(status = ListStatus.Active)
       )
@@ -71,7 +77,7 @@ class ListEntitySpec
         )
 
       result.reply should be(Done)
-      result.event should be(TitleUpdated(evtCtx, newTitle))
+      result.event should be(ListTitleUpdated(evtCtx, entityId, newTitle))
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(title = newTitle)
       )

@@ -28,12 +28,12 @@ class GrpcListServiceImpl(
   }
 
   override def create(req: CreateListReq): Future[CreateListRes] = {
-    val listId = UUID.randomUUID().toString
+    val entityId = UUID.randomUUID().toString
     val ctx = RequestContext()
     entity
       .runCommand(
-        listId,
-        replyTo => CreateList(ctx, replyTo, req.boardId, req.title)
+        entityId,
+        replyTo => CreateList(entityId, ctx, replyTo, req.boardId, req.title)
       )
       .map(_ => CreateListRes())
   }

@@ -4,7 +4,6 @@ import akka.actor.typed.ActorRef
 import akka.cluster.sharding.typed.ShardingEnvelope
 import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, Entity, EntityRef}
 import akka.util.Timeout
-import taska.cqrs.CommandReply
 
 import scala.concurrent.Future
 
@@ -17,7 +16,7 @@ trait EntitySharding[Command] {
     sharding.entityRefFor(entityDefinition.typeKey, entityId)
   }
 
-  def runCommand[C <: Command with CommandReply[R], R](
+  def runCommand[C <: Command with ReplyTo[R], R](
       entityId: String,
       f: ActorRef[R] => C
   ): Future[R] = {

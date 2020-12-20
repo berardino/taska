@@ -2,9 +2,16 @@ package taska.entity.board
 
 import akka.Done
 import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
-import taska.cqrs.EventContext
+import taska.entity.EventContext
 import taska.entity.board.BoardCommand._
-import taska.entity.board.BoardEvent._
+import taska.entity.board.BoardEvent.{
+  BoardArchived,
+  BoardCreated,
+  BoardDescriptionUpdated,
+  BoardListAdded,
+  BoardTitleUpdated,
+  BoardUnArchived
+}
 import taska.entity.board.BoardState.{CreatedBoardState, EmptySate}
 
 object BoardCommandHandler extends BoardEntity.CommandHandler {
@@ -15,38 +22,44 @@ object BoardCommandHandler extends BoardEntity.CommandHandler {
     state match {
       case EmptySate => {
         cmd match {
-          case CreateBoard(ctx, replyTo, title, description) => {
+          case CreateBoard(entityId, ctx, replyTo, title, description) => {
             Effect
-              .persist(Created(EventContext(ctx), title, description))
+              .persist(
+                BoardCreated(EventContext(ctx), entityId, title, description)
+              )
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedBoardState(_, _, _, _) => {
+      case CreatedBoardState(entityId, _, _, _, _) => {
         cmd match {
           case ArchiveBoard(ctx, replyTo) => {
             Effect
-              .persist(Archived(EventContext(ctx)))
+              .persist(BoardArchived(entityId, EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
           case UnArchiveBoard(ctx, replyTo) => {
             Effect
-              .persist(UnArchived(EventContext(ctx)))
+              .persist(BoardUnArchived(entityId, EventContext(ctx)))
               .thenReply(replyTo)(_ => Done)
           }
           case BoardAddList(ctx, replyTo, listId) => {
             Effect
-              .persist(ListAdded(EventContext(ctx), listId))
+              .persist(BoardListAdded(entityId, EventContext(ctx), listId))
               .thenReply(replyTo)(_ => Done)
           }
           case UpdateBoard(ctx, replyTo, updates) => {
             val events = updates.map {
               case UpdateBoardTitle(title) => {
-                TitleUpdated(EventContext(ctx), title)
+                BoardTitleUpdated(entityId, EventContext(ctx), title)
               }
               case UpdateBoardDescription(description) => {
-                DescriptionUpdated(EventContext(ctx), description)
+                BoardDescriptionUpdated(
+                  entityId,
+                  EventContext(ctx),
+                  description
+                )
               }
             }
             Effect

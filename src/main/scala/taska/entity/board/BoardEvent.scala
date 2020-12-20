@@ -1,27 +1,36 @@
 package taska.entity.board
 
-import taska.cqrs.{Event, EventContext}
+import taska.entity.{Event, EventContext}
 
-sealed trait BoardEvent extends Event
-
-sealed trait BoardUpdateEvent extends Event
+sealed trait BoardEvent extends Event[String]
 
 object BoardEvent {
 
-  case class Created(
+  case class BoardCreated(
       ctx: EventContext,
+      entityId: String,
       title: String,
       description: Option[String]
   ) extends BoardEvent
 
-  case class Archived(ctx: EventContext) extends BoardEvent
-
-  case class UnArchived(ctx: EventContext) extends BoardEvent
-
-  case class ListAdded(ctx: EventContext, listId: String) extends BoardEvent
-
-  case class TitleUpdated(ctx: EventContext, title: String) extends BoardEvent
-
-  case class DescriptionUpdated(ctx: EventContext, description: Option[String])
+  case class BoardArchived(entityId: String, ctx: EventContext)
       extends BoardEvent
+
+  case class BoardUnArchived(entityId: String, ctx: EventContext)
+      extends BoardEvent
+
+  case class BoardListAdded(entityId: String, ctx: EventContext, listId: String)
+      extends BoardEvent
+
+  case class BoardTitleUpdated(
+      entityId: String,
+      ctx: EventContext,
+      title: String
+  ) extends BoardEvent
+
+  case class BoardDescriptionUpdated(
+      entityId: String,
+      ctx: EventContext,
+      description: Option[String]
+  ) extends BoardEvent
 }

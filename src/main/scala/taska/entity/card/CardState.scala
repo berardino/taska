@@ -1,25 +1,19 @@
 package taska.entity.card
 
-import taska.cqrs.EventState
+import taska.entity.{EntityId, EntityState}
 import taska.entity.card.CardEnum.CardStatus
 import taska.entity.card.CardEnum.CardStatus.CardStatus
-import taska.entity.card.CardEvent.{
-  Archived,
-  Created,
-  DescriptionUpdated,
-  TitleUpdated,
-  UnArchived
-}
+import taska.entity.card.CardEvent._
 
-sealed trait CardState extends EventState[CardEvent, CardState]
+sealed trait CardState extends EntityState[CardEvent, CardState]
 
 object CardState {
 
   case object EmptySate extends CardState {
     override def applyEvent(event: CardEvent): CardState = {
       event match {
-        case Created(_, listId, title, description) => {
-          CreatedCardState(listId, title, description)
+        case CardCreated(_, entityId, listId, title, description) => {
+          CreatedCardState(entityId, listId, title, description)
         }
         case _ => {
           throw new IllegalStateException(
@@ -31,23 +25,25 @@ object CardState {
   }
 
   case class CreatedCardState(
+      entityId: String,
       listId: String,
       title: String,
       description: Option[String],
       status: CardStatus = CardStatus.Active
-  ) extends CardState {
+  ) extends CardState
+      with EntityId[String] {
     override def applyEvent(event: CardEvent): CardState = {
       event match {
-        case Archived(_) => {
+        case CardArchived(_, _) => {
           copy(status = CardStatus.Archived)
         }
-        case UnArchived(_) => {
+        case CardUnArchived(_, _) => {
           copy(status = CardStatus.Active)
         }
-        case TitleUpdated(_, name) => {
+        case CardTitleUpdated(_, _, name) => {
           copy(title = name)
         }
-        case DescriptionUpdated(_, description) => {
+        case CardDescriptionUpdated(_, _, description) => {
           copy(description = description)
         }
         case _ => {

@@ -1,10 +1,16 @@
 package taska.entity.card
 
 import akka.Done
-import taska.cqrs.EventContext
+import taska.entity.EventContext
 import taska.entity.card.CardCommand._
 import taska.entity.card.CardEnum.CardStatus
-import taska.entity.card.CardEvent._
+import taska.entity.card.CardEvent.{
+  CardArchived,
+  CardCreated,
+  CardDescriptionUpdated,
+  CardTitleUpdated,
+  CardUnArchived
+}
 import taska.entity.card.CardState.CreatedCardState
 import taska.gen.Synth
 import taska.request.RequestContext
@@ -16,6 +22,7 @@ class CardEntitySpec
     )
     with UnitSpec {
 
+  val entityId: String = genStr()
   val ctx: RequestContext = RequestContext()
   val evtCtx: EventContext = EventContext(ctx)
   val title: String = genStr()
@@ -27,13 +34,21 @@ class CardEntitySpec
     "be created with a title and optionally a description, no cards and in active state" in {
       val result =
         behaviorTestKit.runCommand(reply =>
-          CreateCard(ctx, reply, listId, title, description)
+          CreateCard(entityId, ctx, reply, listId, title, description)
         )
 
       result.reply should be(Done)
-      result.event should be(Created(evtCtx, listId, title, description))
+      result.event should be(
+        CardCreated(evtCtx, entityId, listId, title, description)
+      )
       result.stateOfType[CreatedCardState] should be(
-        CreatedCardState(listId, title, description, CardStatus.Active)
+        CreatedCardState(
+          entityId,
+          listId,
+          title,
+          description,
+          CardStatus.Active
+        )
       )
     }
   }
@@ -45,7 +60,7 @@ class CardEntitySpec
         behaviorTestKit.runCommand(reply => ArchiveCard(ctx, reply))
 
       result.reply should be(Done)
-      result.event should be(Archived(evtCtx))
+      result.event should be(CardArchived(evtCtx, entityId))
       result.stateOfType[CreatedCardState] should be(
         getState[CreatedCardState].copy(status = CardStatus.Archived)
       )
@@ -56,7 +71,7 @@ class CardEntitySpec
         behaviorTestKit.runCommand(reply => UnArchiveCard(ctx, reply))
 
       result.reply should be(Done)
-      result.event should be(UnArchived(evtCtx))
+      result.event should be(CardUnArchived(evtCtx, entityId))
       result.stateOfType[CreatedCardState] should be(
         getState[CreatedCardState].copy(status = CardStatus.Active)
       )
@@ -72,7 +87,7 @@ class CardEntitySpec
         )
 
       result.reply should be(Done)
-      result.event should be(TitleUpdated(evtCtx, newTitle))
+      result.event should be(CardTitleUpdated(evtCtx, entityId, newTitle))
       result.stateOfType[CreatedCardState] should be(
         getState[CreatedCardState].copy(title = newTitle)
       )
@@ -88,7 +103,9 @@ class CardEntitySpec
         )
 
       result.reply should be(Done)
-      result.event should be(DescriptionUpdated(evtCtx, newDescription))
+      result.event should be(
+        CardDescriptionUpdated(evtCtx, entityId, newDescription)
+      )
       result.stateOfType[CreatedCardState] should be(
         getState[CreatedCardState].copy(description = newDescription)
       )

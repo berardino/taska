@@ -28,13 +28,20 @@ class GrpcCardServiceImpl(
   }
 
   override def create(req: CreateCardReq): Future[CreateCardRes] = {
-    val cardId = UUID.randomUUID().toString
+    val entityId = UUID.randomUUID().toString
     val ctx = RequestContext()
     entity
       .runCommand(
-        cardId,
+        entityId,
         replyTo =>
-          CreateCard(ctx, replyTo, req.listId, req.title, req.description)
+          CreateCard(
+            entityId,
+            ctx,
+            replyTo,
+            req.listId,
+            req.title,
+            req.description
+          )
       )
       .map(_ => CreateCardRes())
   }

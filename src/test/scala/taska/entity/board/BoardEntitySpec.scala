@@ -1,10 +1,17 @@
 package taska.entity.board
 
 import akka.Done
-import taska.cqrs.EventContext
+import taska.entity.EventContext
 import taska.entity.board.BoardCommand._
 import taska.entity.board.BoardEnum.BoardStatus
-import taska.entity.board.BoardEvent._
+import taska.entity.board.BoardEvent.{
+  BoardArchived,
+  BoardCreated,
+  BoardDescriptionUpdated,
+  BoardListAdded,
+  BoardTitleUpdated,
+  BoardUnArchived
+}
 import taska.entity.board.BoardState.CreatedBoardState
 import taska.gen.Synth
 import taska.request.RequestContext
@@ -16,6 +23,7 @@ class BoardEntitySpec
     )
     with UnitSpec {
 
+  val entityId: String = genStr()
   val ctx: RequestContext = RequestContext()
   val evtCtx: EventContext = EventContext(ctx)
 
@@ -25,13 +33,19 @@ class BoardEntitySpec
       val title = genStr()
       val description = genOptStr()
       val result = behaviorTestKit.runCommand(reply =>
-        CreateBoard(ctx, reply, title, description)
+        CreateBoard(entityId, ctx, reply, title, description)
       )
 
       result.reply should be(Done)
-      result.event should be(Created(evtCtx, title, description))
+      result.event should be(BoardCreated(evtCtx, entityId, title, description))
       result.stateOfType[CreatedBoardState] should be(
-        CreatedBoardState(title, description, Seq.empty, BoardStatus.Active)
+        CreatedBoardState(
+          entityId,
+          title,
+          description,
+          Seq.empty,
+          BoardStatus.Active
+        )
       )
     }
   }
@@ -43,7 +57,7 @@ class BoardEntitySpec
         behaviorTestKit.runCommand(reply => ArchiveBoard(ctx, reply))
 
       result.reply should be(Done)
-      result.event should be(Archived(evtCtx))
+      result.event should be(BoardArchived(entityId, evtCtx))
       result.stateOfType[CreatedBoardState] should be(
         getState[CreatedBoardState].copy(status = BoardStatus.Archived)
       )
@@ -54,7 +68,7 @@ class BoardEntitySpec
         behaviorTestKit.runCommand(reply => UnArchiveBoard(ctx, reply))
 
       result.reply should be(Done)
-      result.event should be(UnArchived(evtCtx))
+      result.event should be(BoardUnArchived(entityId, evtCtx))
       result.stateOfType[CreatedBoardState] should be(
         getState[CreatedBoardState].copy(status = BoardStatus.Active)
       )
@@ -68,7 +82,7 @@ class BoardEntitySpec
         behaviorTestKit.runCommand(reply => BoardAddList(ctx, reply, listId))
 
       result.reply should be(Done)
-      result.event should be(ListAdded(evtCtx, listId))
+      result.event should be(BoardListAdded(entityId, evtCtx, listId))
       result.stateOfType[CreatedBoardState] should be(
         getState[CreatedBoardState].copy(lists = Seq(listId))
       )
@@ -84,7 +98,7 @@ class BoardEntitySpec
         )
 
       result.reply should be(Done)
-      result.event should be(TitleUpdated(evtCtx, newTitle))
+      result.event should be(BoardTitleUpdated(entityId, evtCtx, newTitle))
       result.stateOfType[CreatedBoardState] should be(
         getState[CreatedBoardState].copy(title = newTitle)
       )
@@ -100,7 +114,9 @@ class BoardEntitySpec
         )
 
       result.reply should be(Done)
-      result.event should be(DescriptionUpdated(evtCtx, newDescription))
+      result.event should be(
+        BoardDescriptionUpdated(entityId, evtCtx, newDescription)
+      )
       result.stateOfType[CreatedBoardState] should be(
         getState[CreatedBoardState].copy(description = newDescription)
       )

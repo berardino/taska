@@ -3,14 +3,15 @@ package taska.entity.card
 import akka.Done
 import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import taska.cqrs.{Command, CommandReply}
+import taska.entity.{Command, ReplyTo}
 import taska.request.RequestContext
 
-sealed trait CardCommand extends Command with CommandReply[Done]
+sealed trait CardCommand extends Command with ReplyTo[Done]
 
 object CardCommand {
 
   case class CreateCard(
+      entityId: String,
       ctx: RequestContext,
       replyTo: ActorRef[Done],
       listId: String,

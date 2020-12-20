@@ -3,25 +3,31 @@ package taska.entity.board
 import akka.Done
 import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import taska.cqrs.{Command, CommandReply}
+import taska.entity.{Command, EntityId, ReplyTo}
 import taska.request.RequestContext
 
-sealed trait BoardCommand extends Command with CommandReply[Done]
+sealed trait BoardCommand extends Command with ReplyTo[Done]
 
 object BoardCommand {
 
   case class CreateBoard(
+      entityId: String,
       ctx: RequestContext,
       replyTo: ActorRef[Done],
       title: String,
       description: Option[String] = None
   ) extends BoardCommand
+      with EntityId[String]
 
-  case class ArchiveBoard(ctx: RequestContext, replyTo: ActorRef[Done])
-      extends BoardCommand
+  case class ArchiveBoard(
+      ctx: RequestContext,
+      replyTo: ActorRef[Done]
+  ) extends BoardCommand
 
-  case class UnArchiveBoard(ctx: RequestContext, replyTo: ActorRef[Done])
-      extends BoardCommand
+  case class UnArchiveBoard(
+      ctx: RequestContext,
+      replyTo: ActorRef[Done]
+  ) extends BoardCommand
 
   case class BoardAddList(
       ctx: RequestContext,

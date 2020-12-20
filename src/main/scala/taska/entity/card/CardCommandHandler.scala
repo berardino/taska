@@ -2,7 +2,7 @@ package taska.entity.card
 
 import akka.Done
 import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
-import taska.cqrs.EventContext
+import taska.entity.EventContext
 import taska.entity.card.CardCommand._
 import taska.entity.card.CardEvent._
 import taska.entity.card.CardState.{CreatedCardState, EmptySate}
@@ -15,33 +15,48 @@ object CardCommandHandler extends CardEntity.CommandHandler {
     state match {
       case EmptySate => {
         cmd match {
-          case CreateCard(ctx, replyTo, listId, title, description) => {
+          case CreateCard(
+                entityId,
+                ctx,
+                replyTo,
+                listId,
+                title,
+                description
+              ) => {
             Effect
-              .persist(Created(EventContext(ctx), listId, title, description))
+              .persist(
+                CardCreated(
+                  EventContext(ctx),
+                  entityId,
+                  listId,
+                  title,
+                  description
+                )
+              )
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedCardState(_, _, _, _) => {
+      case CreatedCardState(entityId, _, _, _, _) => {
         cmd match {
           case ArchiveCard(ctx, replyTo) => {
             Effect
-              .persist(Archived(EventContext(ctx)))
+              .persist(CardArchived(EventContext(ctx), entityId))
               .thenReply(replyTo)(_ => Done)
           }
           case UnArchiveCard(ctx, replyTo) => {
             Effect
-              .persist(UnArchived(EventContext(ctx)))
+              .persist(CardUnArchived(EventContext(ctx), entityId))
               .thenReply(replyTo)(_ => Done)
           }
           case UpdateCard(ctx, replyTo, updates) => {
             val events = updates.map {
               case UpdateCardTitle(title) => {
-                TitleUpdated(EventContext(ctx), title)
+                CardTitleUpdated(EventContext(ctx), entityId, title)
               }
               case UpdateCardDescription(description) => {
-                DescriptionUpdated(EventContext(ctx), description)
+                CardDescriptionUpdated(EventContext(ctx), entityId, description)
               }
             }
             Effect
