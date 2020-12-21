@@ -1,31 +1,26 @@
 package taska.grpc.list
 
-import akka.actor.typed.ActorSystem
-import akka.grpc.ServiceDescription
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import io.grpc.ServerServiceDefinition
 import org.springframework.stereotype.Component
 import taska.entity.list.ListCommand.CreateList
 import taska.entity.list.ListEntitySharding
-import taska.grpc.AkkaGrpcService
-import taska.list.proto._
+import taska.grpc.GrpcService
+import taska.proto.list.ListServiceGrpc.ListService
+import taska.proto.list._
 import taska.request.RequestContext
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Component
-class GrpcListServiceImpl(
+class GrpcListService(
     entity: ListEntitySharding
-)(implicit val actorSystem: ActorSystem[Nothing])
-    extends GrpcListService
-    with AkkaGrpcService {
+) extends ListService
+    with GrpcService {
 
-  override val serviceDescription: ServiceDescription = GrpcListService
-
-  def partial(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
-    GrpcListServiceHandler.partial(this)
-  }
+  override def bindService: ServerServiceDefinition =
+    ListServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateListReq): Future[CreateListRes] = {
     val entityId = UUID.randomUUID().toString

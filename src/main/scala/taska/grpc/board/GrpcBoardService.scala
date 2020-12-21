@@ -1,31 +1,26 @@
 package taska.grpc.board
 
-import akka.actor.typed.ActorSystem
-import akka.grpc.ServiceDescription
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import io.grpc.ServerServiceDefinition
 import org.springframework.stereotype.Component
-import taska.board.proto._
 import taska.entity.board.BoardCommand.CreateBoard
 import taska.entity.board.BoardEntitySharding
-import taska.grpc.AkkaGrpcService
+import taska.grpc.GrpcService
+import taska.proto.board.BoardServiceGrpc.BoardService
+import taska.proto.board._
 import taska.request.RequestContext
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Component
-class GrpcBoardServiceImpl(
+class GrpcBoardService(
     entity: BoardEntitySharding
-)(implicit val actorSystem: ActorSystem[Nothing])
-    extends GrpcBoardService
-    with AkkaGrpcService {
+) extends BoardService
+    with GrpcService {
 
-  override val serviceDescription: ServiceDescription = GrpcBoardService
-
-  def partial(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
-    GrpcBoardServiceHandler.partial(this)
-  }
+  override def bindService: ServerServiceDefinition =
+    BoardServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateBoardReq): Future[CreateBoardRes] = {
     val entityId = UUID.randomUUID().toString

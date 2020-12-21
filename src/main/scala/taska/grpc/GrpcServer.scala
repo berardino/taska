@@ -1,38 +1,49 @@
 package taska.grpc
 
-import akka.actor.typed.ActorSystem
-import akka.grpc.scaladsl.ServiceHandler
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.{Http, HttpConnectionContext}
 import com.typesafe.config.Config
+import io.grpc.netty.NettyServerBuilder
+import io.grpc.protobuf.services.ProtoReflectionService
+import io.grpc.{
+  Server,
+  ServerInterceptor,
+  ServerInterceptors,
+  ServerServiceDefinition
+}
 
-import scala.concurrent.Future
+import java.net.InetSocketAddress
 
-class GrpcServer(
-    handlers: List[PartialFunction[HttpRequest, Future[HttpResponse]]],
-    interface: String = "127.0.0.1",
-    port: Int = 8080
-)(implicit actorSystem: ActorSystem[Nothing]) {
+trait GrpcService {
+  def bindService: ServerServiceDefinition
+}
 
-  def start(): Future[Http.ServerBinding] = {
-    Http(actorSystem).bindAndHandleAsync(
-      ServiceHandler
-        .concatOrNotFound(handlers: _*),
-      interface,
-      port,
-      connectionContext = HttpConnectionContext()
-    )
+class GrpcServer(server: Server) {
+  def start(): Unit = {
+    server.start()
   }
 }
 
 object GrpcServer {
 
   def apply(
-      handlers: List[PartialFunction[HttpRequest, Future[HttpResponse]]],
+      grpcServices: Seq[GrpcService],
+      grpcInterceptors: Seq[ServerInterceptor],
       config: Config
-  )(implicit actorSystem: ActorSystem[Nothing]): GrpcServer = {
-    val interface = config.getString("interface")
+  ): GrpcServer = {
+    val hostname = config.getString("hostname")
     val port = config.getInt("port")
-    new GrpcServer(handlers, interface, port)
+
+    val serverBuilder = NettyServerBuilder
+      .forAddress(new InetSocketAddress(hostname, port))
+      .addService(ProtoReflectionService.newInstance())
+
+    grpcServices
+      .map { service =>
+        ServerInterceptors.intercept(service.bindService, grpcInterceptors: _*)
+      }
+      .foreach(serverBuilder.addService)
+
+    val server = serverBuilder.build()
+
+    new GrpcServer(server)
   }
 }

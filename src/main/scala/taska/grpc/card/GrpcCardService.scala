@@ -1,31 +1,26 @@
 package taska.grpc.card
 
-import akka.actor.typed.ActorSystem
-import akka.grpc.ServiceDescription
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import io.grpc.ServerServiceDefinition
 import org.springframework.stereotype.Component
-import taska.card.proto._
 import taska.entity.card.CardCommand.CreateCard
 import taska.entity.card.CardEntitySharding
-import taska.grpc.AkkaGrpcService
+import taska.grpc.GrpcService
+import taska.proto.card.CardServiceGrpc.CardService
+import taska.proto.card._
 import taska.request.RequestContext
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Component
-class GrpcCardServiceImpl(
+class GrpcCardService(
     entity: CardEntitySharding
-)(implicit val actorSystem: ActorSystem[Nothing])
-    extends GrpcCardService
-    with AkkaGrpcService {
+) extends CardService
+    with GrpcService {
 
-  override val serviceDescription: ServiceDescription = GrpcCardService
-
-  def partial(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
-    GrpcCardServiceHandler.partial(this)
-  }
+  override def bindService: ServerServiceDefinition =
+    CardServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateCardReq): Future[CreateCardRes] = {
     val entityId = UUID.randomUUID().toString

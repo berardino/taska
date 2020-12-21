@@ -13,7 +13,11 @@ val ScalaTestVersion = "3.2.3"
 val ScalaCheckVersion = "1.15.2"
 val FlywayVersion = "7.3.2"
 
-enablePlugins(AkkaGrpcPlugin, JavaServerAppPackaging)
+enablePlugins(JavaServerAppPackaging)
+
+PB.targets in Compile := Seq(
+  scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
+)
 
 mainClass in Compile := Some("taska.TaskaApp")
 
@@ -52,7 +56,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
   "org.postgresql" % "postgresql" % PostgresqlVersion,
   "org.flywaydb" % "flyway-core" % FlywayVersion,
-// Akka Projection
+  // Akka Projection
   "com.lightbend.akka" %% "akka-projection-eventsourced" % AkkaProjectionVersion,
   "com.lightbend.akka" %% "akka-projection-cassandra" % AkkaProjectionVersion,
   // Spring
@@ -62,6 +66,10 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % LogbackVersion,
   // Proto
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+  // Grpc
+  "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion,
+  "io.grpc" % "grpc-services" % scalapb.compiler.Version.grpcJavaVersion,
   // Test
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
   "com.typesafe.akka" %% "akka-persistence-testkit" % AkkaVersion % Test,

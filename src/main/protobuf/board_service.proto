@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package taska.board.proto;
+package taska.proto.board;
 
 message CreateBoardReq {
   string title = 1;
@@ -23,7 +23,7 @@ message UpdateBoardReq {
 message UpdateBoardRes {
 }
 
-service GrpcBoardService {
+service BoardService {
   rpc Create (CreateBoardReq) returns (CreateBoardRes);
   rpc Archive (ArchiveBoardReq) returns (ArchiveBoardRes);
   rpc UnArchive (UnArchiveBoardReq) returns (UnArchiveBoardRes);

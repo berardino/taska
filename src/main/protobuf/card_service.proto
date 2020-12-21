@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package taska.card.proto;
+package taska.proto.card;
 
 message CreateCardReq {
   string list_id = 1;
@@ -24,7 +24,7 @@ message UpdateCardReq {
 message UpdateCardRes {
 }
 
-service GrpcCardService {
+service CardService {
   rpc Create (CreateCardReq) returns (CreateCardRes);
   rpc Archive (ArchiveCardReq) returns (ArchiveCardRes);
   rpc UnArchive (UnArchiveCardReq) returns (UnArchiveCardRes);
