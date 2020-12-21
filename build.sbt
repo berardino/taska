@@ -1,8 +1,6 @@
+import sbt.Keys.scalaVersion
+
 name := "taska"
-
-version := "1.0"
-
-scalaVersion := "2.13.4"
 
 val AkkaVersion = "2.6.10"
 val AkkaPersistenceJdbc = "4.0.0"
@@ -13,14 +11,9 @@ val PostgresqlVersion = "42.2.18"
 val SpringVersion = "5.3.2"
 val ScalaTestVersion = "3.2.3"
 val ScalaCheckVersion = "1.15.2"
+val FlywayVersion = "7.3.2"
 
 enablePlugins(AkkaGrpcPlugin, JavaServerAppPackaging)
-
-scalacOptions ++= Seq(
-  "-Xfatal-warnings",
-  "-deprecation",
-  "-Ywarn-unused"
-)
 
 mainClass in Compile := Some("taska.TaskaApp")
 
@@ -29,6 +22,13 @@ dockerBaseImage := "openjdk:jre-slim"
 inThisBuild(
   List(
     fork := true,
+    version := "1.0",
+    scalaVersion := "2.13.4",
+    scalacOptions ++= Seq(
+      "-Xfatal-warnings",
+      "-deprecation",
+      "-Ywarn-unused"
+    ),
     semanticdbEnabled := true,
     semanticdbEnabled := true,
     scalafixScalaBinaryVersion := "2.13",
@@ -36,8 +36,6 @@ inThisBuild(
     scalafmtOnCompile := true
   )
 )
-
-//semanticdbVersion := scalafixSemanticdb.revision
 
 libraryDependencies ++= Seq(
   // Akka
@@ -48,11 +46,13 @@ libraryDependencies ++= Seq(
   // Akka Persistence
   "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
+  // DB
   "com.lightbend.akka" %% "akka-persistence-jdbc" % AkkaPersistenceJdbc,
   "com.typesafe.slick" %% "slick" % SlickVersion,
   "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
   "org.postgresql" % "postgresql" % PostgresqlVersion,
-  // Akka Projection
+  "org.flywaydb" % "flyway-core" % FlywayVersion,
+// Akka Projection
   "com.lightbend.akka" %% "akka-projection-eventsourced" % AkkaProjectionVersion,
   "com.lightbend.akka" %% "akka-projection-cassandra" % AkkaProjectionVersion,
   // Spring

@@ -1,5 +1,6 @@
 package taska
 
+import org.flywaydb.core.Flyway
 import org.springframework.context.annotation.{
   AnnotationConfigApplicationContext,
   ComponentScan,
@@ -23,9 +24,11 @@ object TaskaApp extends App {
 
 @Component
 class TaskaEntryPoint(
+    flyway: Flyway,
     entitiesRegistry: EntityShardingRegistry,
     grpcServer: GrpcServer
 ) {
+  flyway.migrate()
   entitiesRegistry.init()
   grpcServer.start()
 }
