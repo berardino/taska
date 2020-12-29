@@ -1,31 +1,19 @@
 package taska.entity.list
 
-import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.util.Timeout
 import org.springframework.stereotype.Component
-import taska.entity.{EntityDefinition, EntityPersistence, EntitySharding}
+import taska.entity.{EntityDef, EntitySharding}
 
-import scala.concurrent.duration.DurationInt
-
-object ListEntity
-    extends EntityDefinition[ListCommand]("List")
-    with EntityPersistence[ListCommand, ListEvent, ListState] {
+object ListEntity extends EntityDef[ListCommand, ListEvent, ListState]("list") {
 
   val emptyState = ListState.EmptySate
-
   val commandHandler = ListCommandHandler
-
-  val eventHandler = ListEventHandler
-
-  override def apply(entityId: String): Behavior[ListCommand] = {
-    withEnforcedReplies(entityId)
-  }
+  val commandWrapper = ListCommandWrapper
 }
 
 @Component
-class ListEntitySharding(val sharding: ClusterSharding)
-    extends EntitySharding[ListCommand] {
-  val entityDefinition = ListEntity
-  val timeout: Timeout = Timeout(3.seconds)
-}
+class ListEntity(sharding: ClusterSharding)
+    extends EntitySharding[ListCommand, ListEvent, ListState](
+      ListEntity,
+      sharding
+    ) {}

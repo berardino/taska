@@ -1,5 +1,6 @@
 package taska.grpc.board
 
+import akka.util.Timeout
 import io.grpc.ServerServiceDefinition
 import org.springframework.stereotype.Component
 import taska.entity.board.BoardCommand.CreateBoard
@@ -11,6 +12,7 @@ import taska.request.RequestContext
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Component
@@ -19,17 +21,18 @@ class GrpcBoardService(
 ) extends BoardService
     with GrpcService {
 
+  implicit val timeout: Timeout = 5.seconds
+
   override def bindService: ServerServiceDefinition =
     BoardServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateBoardReq): Future[CreateBoardRes] = {
     val entityId = UUID.randomUUID().toString
-    val ctx = RequestContext()
+    implicit val ctx = RequestContext()
     entity
       .runCommand(
         entityId,
-        replyTo =>
-          CreateBoard(entityId, ctx, replyTo, req.title, req.description)
+        replyTo => CreateBoard(replyTo, req.title, req.description)
       )
       .map(_ => CreateBoardRes())
   }

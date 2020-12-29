@@ -1,66 +1,56 @@
 package taska.entity.card
 
 import akka.Done
-import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
-import taska.entity.EventContext
+import akka.persistence.typed.scaladsl.Effect
 import taska.entity.card.CardCommand._
 import taska.entity.card.CardEvent._
 import taska.entity.card.CardState.{CreatedCardState, EmptySate}
+import taska.entity.{CommandHandler, CommandHeader, EventWrapper}
 
-object CardCommandHandler extends CardEntity.CommandHandler {
-  override def apply(
-      state: CardState,
-      cmd: CardCommand
-  ): ReplyEffect[CardEvent, CardState] = {
+object CardCommandHandler
+    extends CommandHandler[CardCommand, CardEvent, CardState] {
+
+  val eventWrapper: EventWrapper[CardEvent] = CardEventWrapper
+
+  override def onCommand(state: CardState, cmd: CardCommand)(implicit
+      header: CommandHeader
+  ): Reply = {
     state match {
       case EmptySate => {
         cmd match {
           case CreateCard(
-                entityId,
-                ctx,
                 replyTo,
                 listId,
                 title,
                 description
               ) => {
-            Effect
-              .persist(
-                CardCreated(
-                  EventContext(ctx),
-                  entityId,
-                  listId,
-                  title,
-                  description
-                )
-              )
-              .thenReply(replyTo)(_ => Done)
+            persist(
+              CardCreated(listId, title, description)
+            ).thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedCardState(entityId, _, _, _, _) => {
+      case CreatedCardState(_, _, _, _, _) => {
         cmd match {
-          case ArchiveCard(ctx, replyTo) => {
-            Effect
-              .persist(CardArchived(EventContext(ctx), entityId))
+          case ArchiveCard(replyTo) => {
+            persist(CardArchived())
               .thenReply(replyTo)(_ => Done)
           }
-          case UnArchiveCard(ctx, replyTo) => {
-            Effect
-              .persist(CardUnArchived(EventContext(ctx), entityId))
+          case UnArchiveCard(replyTo) => {
+            persist(CardUnArchived())
               .thenReply(replyTo)(_ => Done)
           }
-          case UpdateCard(ctx, replyTo, updates) => {
+          case UpdateCard(replyTo, updates) => {
             val events = updates.map {
               case UpdateCardTitle(title) => {
-                CardTitleUpdated(EventContext(ctx), entityId, title)
+                CardTitleUpdated(title)
               }
               case UpdateCardDescription(description) => {
-                CardDescriptionUpdated(EventContext(ctx), entityId, description)
+                CardDescriptionUpdated(description)
               }
             }
-            Effect
-              .persist(events)
+            persistAll(events)
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
@@ -68,4 +58,5 @@ object CardCommandHandler extends CardEntity.CommandHandler {
       }
     }
   }
+
 }

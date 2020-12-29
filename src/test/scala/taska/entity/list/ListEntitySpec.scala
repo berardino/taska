@@ -1,7 +1,6 @@
 package taska.entity.list
 
 import akka.Done
-import taska.entity.EventContext
 import taska.entity.list.ListCommand._
 import taska.entity.list.ListEnum.ListStatus
 import taska.entity.list.ListEvent.{
@@ -11,6 +10,7 @@ import taska.entity.list.ListEvent.{
   ListUnArchived
 }
 import taska.entity.list.ListState.CreatedListState
+import taska.entity.{CommandHeader, EventHeader}
 import taska.gen.Synth
 import taska.request.RequestContext
 import taska.spec.{PersistenceSpec, UnitSpec}
@@ -22,8 +22,9 @@ class ListEntitySpec
     with UnitSpec {
 
   val entityId: String = genStr()
-  val ctx: RequestContext = RequestContext()
-  val evtCtx: EventContext = EventContext(ctx)
+  implicit val ctx: RequestContext = RequestContext()
+  implicit val commandHeader: CommandHeader = CommandHeader(entityId, ctx)
+  implicit val eventHeader: EventHeader = EventHeader(entityId, ctx)
   val title: String = genStr()
   val boardId: String = genStr()
 
@@ -31,12 +32,14 @@ class ListEntitySpec
 
     "be created with a title, no cards and in open state" in {
       val result =
-        behaviorTestKit.runCommand(reply =>
-          CreateList(entityId, ctx, reply, boardId, title)
+        behaviorTestKit.runCommand[Done](reply =>
+          ListCommandEnvelope(commandHeader, CreateList(reply, boardId, title))
         )
 
       result.reply should be(Done)
-      result.event should be(ListCreated(evtCtx, entityId, boardId, title))
+      result.event should be(
+        ListEventEnvelope(eventHeader, ListCreated(boardId, title))
+      )
       result.stateOfType[CreatedListState] should be(
         CreatedListState(entityId, boardId, title, Seq.empty, ListStatus.Active)
       )
@@ -47,10 +50,12 @@ class ListEntitySpec
 
     "be archived" in {
       val result =
-        behaviorTestKit.runCommand(reply => ArchiveList(ctx, reply))
+        behaviorTestKit.runCommand[Done](reply =>
+          ListCommandEnvelope(commandHeader, ArchiveList(reply))
+        )
 
       result.reply should be(Done)
-      result.event should be(ListArchived(evtCtx, entityId))
+      result.event should be(ListEventEnvelope(eventHeader, ListArchived()))
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(status = ListStatus.Archived)
       )
@@ -58,10 +63,12 @@ class ListEntitySpec
 
     "be unarchived" in {
       val result =
-        behaviorTestKit.runCommand(reply => UnArchiveList(ctx, reply))
+        behaviorTestKit.runCommand[Done](reply =>
+          ListCommandEnvelope(commandHeader, UnArchiveList(reply))
+        )
 
       result.reply should be(Done)
-      result.event should be(ListUnArchived(evtCtx, entityId))
+      result.event should be(ListEventEnvelope(eventHeader, ListUnArchived()))
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(status = ListStatus.Active)
       )
@@ -72,12 +79,17 @@ class ListEntitySpec
     "be updated" in {
       val newTitle = genStr()
       val result =
-        behaviorTestKit.runCommand(reply =>
-          UpdateList(ctx, reply, Seq(UpdateListTitle(newTitle)))
+        behaviorTestKit.runCommand[Done](reply =>
+          ListCommandEnvelope(
+            commandHeader,
+            UpdateList(reply, Seq(UpdateListTitle(newTitle)))
+          )
         )
 
       result.reply should be(Done)
-      result.event should be(ListTitleUpdated(evtCtx, entityId, newTitle))
+      result.event should be(
+        ListEventEnvelope(eventHeader, ListTitleUpdated(newTitle))
+      )
       result.stateOfType[CreatedListState] should be(
         getState[CreatedListState].copy(title = newTitle)
       )

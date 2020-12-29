@@ -1,19 +1,21 @@
 package taska.entity.board
 
-import taska.entity.{EntityId, EntityState}
 import taska.entity.board.BoardEnum.BoardStatus
 import taska.entity.board.BoardEnum.BoardStatus.BoardStatus
-import taska.entity.board.BoardEvent._
+import taska.entity.board.BoardEvent.{BoardArchived, BoardUnArchived, _}
+import taska.entity.{EntityId, EntityState, EventHeader}
 
 sealed trait BoardState extends EntityState[BoardEvent, BoardState]
 
 object BoardState {
 
   case object EmptySate extends BoardState {
-    override def applyEvent(event: BoardEvent): BoardState = {
+    override def applyEvent(
+        event: BoardEvent
+    )(implicit header: EventHeader): BoardState = {
       event match {
-        case BoardCreated(_, entityId, title, description) => {
-          CreatedBoardState(entityId, title, description)
+        case BoardCreated(title, description) => {
+          CreatedBoardState(header.entityId, title, description)
         }
         case _ => {
           throw new IllegalStateException(
@@ -32,21 +34,23 @@ object BoardState {
       status: BoardStatus = BoardStatus.Active
   ) extends BoardState
       with EntityId[String] {
-    override def applyEvent(event: BoardEvent): BoardState = {
+    override def applyEvent(
+        event: BoardEvent
+    )(implicit header: EventHeader): BoardState = {
       event match {
-        case BoardArchived(_, _) => {
+        case BoardArchived() => {
           copy(status = BoardStatus.Archived)
         }
-        case BoardUnArchived(_, _) => {
+        case BoardUnArchived() => {
           copy(status = BoardStatus.Active)
         }
-        case BoardListAdded(_, _, listId) => {
+        case BoardListAdded(listId) => {
           copy(lists = this.lists ++ List(listId))
         }
-        case BoardTitleUpdated(_, _, name) => {
+        case BoardTitleUpdated(name) => {
           copy(title = name)
         }
-        case BoardDescriptionUpdated(_, _, description) => {
+        case BoardDescriptionUpdated(description) => {
           copy(description = description)
         }
         case _ => {

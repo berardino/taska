@@ -1,26 +1,57 @@
 package taska.entity.list
 
-import taska.entity.{Event, EventContext}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import taska.entity.list.ListEvent.{
+  ListArchived,
+  ListCreated,
+  ListTitleUpdated,
+  ListUnArchived
+}
+import taska.entity.{Event, EventEnvelope, EventHeader, EventWrapper}
+import taska.request.RequestContext
 
-sealed trait ListEvent extends Event[String]
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonSubTypes.Type(value = classOf[ListCreated], name = "created"),
+    new JsonSubTypes.Type(
+      value = classOf[ListArchived],
+      name = "archived"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[ListUnArchived],
+      name = "unarchived"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[ListTitleUpdated],
+      name = "title_updated"
+    )
+  )
+)
+sealed trait ListEvent extends Event
+
+case class ListEventEnvelope(header: EventHeader, event: ListEvent)
+    extends EventEnvelope[ListEvent]
+
+object ListEventWrapper extends EventWrapper[ListEvent] {
+  override def wrap(entityId: String, event: ListEvent)(implicit
+      ctx: RequestContext
+  ): EventEnvelope[ListEvent] =
+    ListEventEnvelope(EventHeader(entityId, ctx), event)
+}
 
 object ListEvent {
 
   case class ListCreated(
-      ctx: EventContext,
-      entityId: String,
       boardId: String,
       title: String
   ) extends ListEvent
 
-  case class ListArchived(ctx: EventContext, entityId: String) extends ListEvent
+  case class ListArchived() extends ListEvent
 
-  case class ListUnArchived(ctx: EventContext, entityId: String)
-      extends ListEvent
+  case class ListUnArchived() extends ListEvent
 
   case class ListTitleUpdated(
-      ctx: EventContext,
-      entityId: String,
       title: String
   ) extends ListEvent
 }

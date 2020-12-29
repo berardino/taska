@@ -1,36 +1,58 @@
 package taska.entity.board
 
-import taska.entity.{Event, EventContext}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import taska.entity.board.BoardEvent._
+import taska.entity.{Event, EventEnvelope, EventHeader, EventWrapper}
+import taska.request.RequestContext
 
-sealed trait BoardEvent extends Event[String]
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonSubTypes.Type(value = classOf[BoardCreated], name = "created"),
+    new JsonSubTypes.Type(
+      value = classOf[BoardArchived],
+      name = "archived"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[BoardUnArchived],
+      name = "unarchived"
+    ),
+    new JsonSubTypes.Type(value = classOf[BoardListAdded], name = "list_added"),
+    new JsonSubTypes.Type(
+      value = classOf[BoardTitleUpdated],
+      name = "title_updated"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[BoardDescriptionUpdated],
+      name = "description_updated"
+    )
+  )
+)
+sealed trait BoardEvent extends Event
+
+case class BoardEventEnvelope(header: EventHeader, event: BoardEvent)
+    extends EventEnvelope[BoardEvent]
+
+object BoardEventWrapper extends EventWrapper[BoardEvent] {
+  override def wrap(entityId: String, event: BoardEvent)(implicit
+      ctx: RequestContext
+  ): EventEnvelope[BoardEvent] =
+    BoardEventEnvelope(EventHeader(entityId, ctx), event)
+}
 
 object BoardEvent {
 
-  case class BoardCreated(
-      ctx: EventContext,
-      entityId: String,
-      title: String,
-      description: Option[String]
-  ) extends BoardEvent
-
-  case class BoardArchived(entityId: String, ctx: EventContext)
+  case class BoardCreated(title: String, description: Option[String])
       extends BoardEvent
 
-  case class BoardUnArchived(entityId: String, ctx: EventContext)
+  case class BoardArchived() extends BoardEvent
+
+  case class BoardUnArchived() extends BoardEvent
+
+  case class BoardListAdded(listId: String) extends BoardEvent
+
+  case class BoardTitleUpdated(title: String) extends BoardEvent
+
+  case class BoardDescriptionUpdated(description: Option[String])
       extends BoardEvent
-
-  case class BoardListAdded(entityId: String, ctx: EventContext, listId: String)
-      extends BoardEvent
-
-  case class BoardTitleUpdated(
-      entityId: String,
-      ctx: EventContext,
-      title: String
-  ) extends BoardEvent
-
-  case class BoardDescriptionUpdated(
-      entityId: String,
-      ctx: EventContext,
-      description: Option[String]
-  ) extends BoardEvent
 }

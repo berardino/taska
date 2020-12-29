@@ -1,19 +1,21 @@
 package taska.entity.card
 
-import taska.entity.{EntityId, EntityState}
 import taska.entity.card.CardEnum.CardStatus
 import taska.entity.card.CardEnum.CardStatus.CardStatus
-import taska.entity.card.CardEvent._
+import taska.entity.card.CardEvent.{CardUnArchived, _}
+import taska.entity.{EntityId, EntityState, EventHeader}
 
 sealed trait CardState extends EntityState[CardEvent, CardState]
 
 object CardState {
 
   case object EmptySate extends CardState {
-    override def applyEvent(event: CardEvent): CardState = {
+    override def applyEvent(
+        event: CardEvent
+    )(implicit header: EventHeader): CardState = {
       event match {
-        case CardCreated(_, entityId, listId, title, description) => {
-          CreatedCardState(entityId, listId, title, description)
+        case CardCreated(listId, title, description) => {
+          CreatedCardState(header.entityId, listId, title, description)
         }
         case _ => {
           throw new IllegalStateException(
@@ -32,18 +34,20 @@ object CardState {
       status: CardStatus = CardStatus.Active
   ) extends CardState
       with EntityId[String] {
-    override def applyEvent(event: CardEvent): CardState = {
+    override def applyEvent(
+        event: CardEvent
+    )(implicit header: EventHeader): CardState = {
       event match {
-        case CardArchived(_, _) => {
+        case CardArchived() => {
           copy(status = CardStatus.Archived)
         }
-        case CardUnArchived(_, _) => {
+        case CardUnArchived() => {
           copy(status = CardStatus.Active)
         }
-        case CardTitleUpdated(_, _, name) => {
+        case CardTitleUpdated(name) => {
           copy(title = name)
         }
-        case CardDescriptionUpdated(_, _, description) => {
+        case CardDescriptionUpdated(description) => {
           copy(description = description)
         }
         case _ => {

@@ -1,8 +1,7 @@
 package taska.entity.list
 
 import akka.Done
-import akka.persistence.typed.scaladsl.{Effect, ReplyEffect}
-import taska.entity.EventContext
+import akka.persistence.typed.scaladsl.Effect
 import taska.entity.list.ListCommand._
 import taska.entity.list.ListEvent.{
   ListArchived,
@@ -11,43 +10,43 @@ import taska.entity.list.ListEvent.{
   ListUnArchived
 }
 import taska.entity.list.ListState.{CreatedListState, EmptySate}
+import taska.entity.{CommandHandler, CommandHeader, EventWrapper}
 
-object ListCommandHandler extends ListEntity.CommandHandler {
-  override def apply(
-      state: ListState,
-      cmd: ListCommand
-  ): ReplyEffect[ListEvent, ListState] = {
+object ListCommandHandler
+    extends CommandHandler[ListCommand, ListEvent, ListState] {
+
+  override val eventWrapper: EventWrapper[ListEvent] = ListEventWrapper
+
+  override def onCommand(state: ListState, cmd: ListCommand)(implicit
+      header: CommandHeader
+  ): Reply = {
     state match {
       case EmptySate => {
         cmd match {
-          case CreateList(entityId, ctx, replyTo, boardId, title) => {
-            Effect
-              .persist(ListCreated(EventContext(ctx), entityId, boardId, title))
+          case CreateList(replyTo, boardId, title) => {
+            persist(ListCreated(boardId, title))
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedListState(entityId, _, _, _, _) => {
+      case CreatedListState(_, _, _, _, _) => {
         cmd match {
-          case ArchiveList(ctx, replyTo) => {
-            Effect
-              .persist(ListArchived(EventContext(ctx), entityId))
+          case ArchiveList(replyTo) => {
+            persist(ListArchived())
               .thenReply(replyTo)(_ => Done)
           }
-          case UnArchiveList(ctx, replyTo) => {
-            Effect
-              .persist(ListUnArchived(EventContext(ctx), entityId))
+          case UnArchiveList(replyTo) => {
+            persist(ListUnArchived())
               .thenReply(replyTo)(_ => Done)
           }
-          case UpdateList(ctx, replyTo, updates) => {
+          case UpdateList(replyTo, updates) => {
             val events = updates.map {
               case UpdateListTitle(title) => {
-                ListTitleUpdated(EventContext(ctx), entityId, title)
+                ListTitleUpdated(title)
               }
             }
-            Effect
-              .persist(events)
+            persistAll(events)
               .thenReply(replyTo)(_ => Done)
           }
           case _ => Effect.unhandled.thenNoReply()

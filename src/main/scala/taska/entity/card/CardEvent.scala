@@ -1,33 +1,61 @@
 package taska.entity.card
 
-import taska.entity.{Event, EventContext}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import taska.entity.card.CardEvent._
+import taska.entity.{Event, EventEnvelope, EventHeader, EventWrapper}
+import taska.request.RequestContext
 
-sealed trait CardEvent extends Event[String]
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonSubTypes.Type(value = classOf[CardCreated], name = "created"),
+    new JsonSubTypes.Type(
+      value = classOf[CardArchived],
+      name = "archived"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[CardUnArchived],
+      name = "unarchived"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[CardTitleUpdated],
+      name = "title_updated"
+    ),
+    new JsonSubTypes.Type(
+      value = classOf[CardDescriptionUpdated],
+      name = "description_updated"
+    )
+  )
+)
+sealed trait CardEvent extends Event
+
+case class CardEventEnvelope(header: EventHeader, event: CardEvent)
+    extends EventEnvelope[CardEvent]
+
+object CardEventWrapper extends EventWrapper[CardEvent] {
+  override def wrap(entityId: String, event: CardEvent)(implicit
+      ctx: RequestContext
+  ): EventEnvelope[CardEvent] =
+    CardEventEnvelope(EventHeader(entityId, ctx), event)
+}
 
 object CardEvent {
 
   case class CardCreated(
-      ctx: EventContext,
-      entityId: String,
       listId: String,
       title: String,
       description: Option[String]
   ) extends CardEvent
 
-  case class CardArchived(ctx: EventContext, entityId: String) extends CardEvent
+  case class CardArchived() extends CardEvent
 
-  case class CardUnArchived(ctx: EventContext, entityId: String)
-      extends CardEvent
+  case class CardUnArchived() extends CardEvent
 
   case class CardTitleUpdated(
-      ctx: EventContext,
-      entityId: String,
       title: String
   ) extends CardEvent
 
   case class CardDescriptionUpdated(
-      ctx: EventContext,
-      entityId: String,
       description: Option[String]
   ) extends CardEvent
 }

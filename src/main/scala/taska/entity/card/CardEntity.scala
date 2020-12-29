@@ -1,31 +1,19 @@
 package taska.entity.card
 
-import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.util.Timeout
 import org.springframework.stereotype.Component
-import taska.entity.{EntityDefinition, EntityPersistence, EntitySharding}
+import taska.entity.{EntityDef, EntitySharding}
 
-import scala.concurrent.duration.DurationInt
-
-object CardEntity
-    extends EntityDefinition[CardCommand]("Card")
-    with EntityPersistence[CardCommand, CardEvent, CardState] {
+object CardEntity extends EntityDef[CardCommand, CardEvent, CardState]("card") {
 
   val emptyState = CardState.EmptySate
-
   val commandHandler = CardCommandHandler
-
-  val eventHandler = CardEventHandler
-
-  override def apply(entityId: String): Behavior[CardCommand] = {
-    withEnforcedReplies(entityId)
-  }
+  val commandWrapper = CardCommandWrapper
 }
 
 @Component
-class CardEntitySharding(val sharding: ClusterSharding)
-    extends EntitySharding[CardCommand] {
-  val entityDefinition = CardEntity
-  val timeout: Timeout = Timeout(3.seconds)
-}
+class CardEntity(sharding: ClusterSharding)
+    extends EntitySharding[CardCommand, CardEvent, CardState](
+      CardEntity,
+      sharding
+    ) {}

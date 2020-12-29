@@ -7,7 +7,6 @@ import org.springframework.context.annotation.{
   Configuration
 }
 import org.springframework.stereotype.Component
-import taska.entity.EntityShardingRegistry
 import taska.grpc.GrpcServer
 
 object ListEntity {}
@@ -25,10 +24,8 @@ object TaskaApp extends App {
 @Component
 class TaskaEntryPoint(
     flyway: Flyway,
-    entitiesRegistry: EntityShardingRegistry,
     grpcServer: GrpcServer
 ) {
   flyway.migrate()
-  entitiesRegistry.init()
   grpcServer.start()
 }

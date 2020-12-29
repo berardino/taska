@@ -5,10 +5,9 @@ import akka.actor.typed.Behavior
 import akka.persistence.testkit.PersistenceTestKitPlugin
 import akka.persistence.testkit.scaladsl.EventSourcedBehaviorTestKit
 import akka.persistence.testkit.scaladsl.EventSourcedBehaviorTestKit.SerializationSettings
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
+import taska.entity.{Command, CommandEnvelope, Event, EventEnvelope}
 import taska.serialization.CborSerializable
-import com.typesafe.config.Config
-import taska.entity.{Command, Event}
 
 object PersistenceSpec {
   val config: Config = ConfigFactory
@@ -20,12 +19,16 @@ object PersistenceSpec {
     .withFallback(PersistenceTestKitPlugin.config)
 }
 
-abstract class PersistenceSpec[C <: Command, E <: Event[_], S](
-    behavior: Behavior[C]
+abstract class PersistenceSpec[C <: Command, E <: Event, S](
+    behavior: Behavior[CommandEnvelope[C]]
 ) extends ScalaTestWithActorTestKit(PersistenceSpec.config) {
 
-  lazy val behaviorTestKit: EventSourcedBehaviorTestKit[C, E, S] =
-    EventSourcedBehaviorTestKit[C, E, S](
+  lazy val behaviorTestKit: EventSourcedBehaviorTestKit[CommandEnvelope[
+    C
+  ], EventEnvelope[E], S] =
+    EventSourcedBehaviorTestKit[CommandEnvelope[C], EventEnvelope[
+      E
+    ], S](
       system,
       behavior,
       SerializationSettings.enabled

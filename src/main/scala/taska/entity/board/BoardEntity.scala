@@ -1,31 +1,20 @@
 package taska.entity.board
 
-import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.util.Timeout
 import org.springframework.stereotype.Component
-import taska.entity.{EntityDefinition, EntityPersistence, EntitySharding}
-
-import scala.concurrent.duration.DurationInt
+import taska.entity.{EntityDef, EntitySharding}
 
 object BoardEntity
-    extends EntityDefinition[BoardCommand]("Board")
-    with EntityPersistence[BoardCommand, BoardEvent, BoardState] {
+    extends EntityDef[BoardCommand, BoardEvent, BoardState]("board") {
 
   val emptyState = BoardState.EmptySate
-
   val commandHandler = BoardCommandHandler
-
-  val eventHandler = BoardEventHandler
-
-  override def apply(entityId: String): Behavior[BoardCommand] = {
-    withEnforcedReplies(entityId)
-  }
+  val commandWrapper = BoardCommandWrapper
 }
 
 @Component
-class BoardEntitySharding(val sharding: ClusterSharding)
-    extends EntitySharding[BoardCommand] {
-  val entityDefinition = BoardEntity
-  val timeout: Timeout = Timeout(3.seconds)
-}
+class BoardEntitySharding(sharding: ClusterSharding)
+    extends EntitySharding[BoardCommand, BoardEvent, BoardState](
+      BoardEntity,
+      sharding
+    ) {}

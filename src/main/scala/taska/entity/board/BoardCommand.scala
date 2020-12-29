@@ -3,34 +3,55 @@ package taska.entity.board
 import akka.Done
 import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import taska.entity.{Command, EntityId, ReplyTo}
+import taska.entity.board.BoardCommand._
+import taska.entity.{
+  Command,
+  CommandEnvelope,
+  CommandHeader,
+  CommandWrapper,
+  ReplyTo
+}
 import taska.request.RequestContext
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonSubTypes.Type(value = classOf[CreateBoard], name = "create"),
+    new JsonSubTypes.Type(value = classOf[ArchiveBoard], name = "archive"),
+    new JsonSubTypes.Type(value = classOf[UnArchiveBoard], name = "unarchive"),
+    new JsonSubTypes.Type(value = classOf[BoardAddList], name = "addlist"),
+    new JsonSubTypes.Type(value = classOf[UpdateBoard], name = "update")
+  )
+)
 sealed trait BoardCommand extends Command with ReplyTo[Done]
+
+case class BoardCommandEnvelope(header: CommandHeader, cmd: BoardCommand)
+    extends CommandEnvelope[BoardCommand]
+
+object BoardCommandWrapper extends CommandWrapper[BoardCommand] {
+  override def wrap(entityId: String, cmd: BoardCommand)(implicit
+      ctx: RequestContext
+  ): CommandEnvelope[BoardCommand] =
+    BoardCommandEnvelope(CommandHeader(entityId, ctx), cmd)
+}
 
 object BoardCommand {
 
   case class CreateBoard(
-      entityId: String,
-      ctx: RequestContext,
       replyTo: ActorRef[Done],
       title: String,
       description: Option[String] = None
   ) extends BoardCommand
-      with EntityId[String]
 
   case class ArchiveBoard(
-      ctx: RequestContext,
       replyTo: ActorRef[Done]
   ) extends BoardCommand
 
   case class UnArchiveBoard(
-      ctx: RequestContext,
       replyTo: ActorRef[Done]
   ) extends BoardCommand
 
   case class BoardAddList(
-      ctx: RequestContext,
       replyTo: ActorRef[Done],
       listId: String
   ) extends BoardCommand
@@ -56,7 +77,6 @@ object BoardCommand {
   ) extends UpdateBoardCommand
 
   case class UpdateBoard(
-      ctx: RequestContext,
       replyTo: ActorRef[Done],
       updates: Seq[UpdateBoardCommand]
   ) extends BoardCommand
