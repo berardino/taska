@@ -31,7 +31,7 @@ object CardCommandHandler
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case CreatedCardState(_, _, _, _, _) => {
+      case _: CreatedCardState => {
         cmd match {
           case ArchiveCard(replyTo) => {
             persist(CardArchived())

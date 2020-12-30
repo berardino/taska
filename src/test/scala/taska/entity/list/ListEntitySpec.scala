@@ -41,7 +41,7 @@ class ListEntitySpec
         ListEventEnvelope(eventHeader, ListCreated(boardId, title))
       )
       result.stateOfType[CreatedListState] should be(
-        CreatedListState(entityId, boardId, title, Seq.empty, ListStatus.Active)
+        CreatedListState(boardId, title, Seq.empty, ListStatus.Active)
       )
     }
   }

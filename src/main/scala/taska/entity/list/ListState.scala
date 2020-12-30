@@ -8,7 +8,7 @@ import taska.entity.list.ListEvent.{
   ListTitleUpdated,
   ListUnArchived
 }
-import taska.entity.{EntityId, EntityState, EventHeader}
+import taska.entity.{EntityState, EventHeader}
 
 sealed trait ListState extends EntityState[ListEvent, ListState]
 
@@ -21,7 +21,7 @@ object ListState {
 
       event match {
         case ListCreated(boardId, title) => {
-          CreatedListState(header.entityId, boardId, title)
+          CreatedListState(boardId, title)
         }
         case _ => {
           throw new IllegalStateException(
@@ -33,13 +33,11 @@ object ListState {
   }
 
   case class CreatedListState(
-      entityId: String,
       boardId: String,
       title: String,
       cards: Seq[String] = Seq.empty,
       status: ListStatus = ListStatus.Active
-  ) extends ListState
-      with EntityId[String] {
+  ) extends ListState {
     override def applyEvent(
         event: ListEvent
     )(implicit header: EventHeader): ListState = {

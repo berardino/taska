@@ -42,7 +42,6 @@ class CardEntitySpec
       )
       result.stateOfType[CreatedCardState] should be(
         CreatedCardState(
-          entityId,
           listId,
           title,
           description,

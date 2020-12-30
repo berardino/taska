@@ -3,7 +3,7 @@ package taska.entity.card
 import taska.entity.card.CardEnum.CardStatus
 import taska.entity.card.CardEnum.CardStatus.CardStatus
 import taska.entity.card.CardEvent.{CardUnArchived, _}
-import taska.entity.{EntityId, EntityState, EventHeader}
+import taska.entity.{EntityState, EventHeader}
 
 sealed trait CardState extends EntityState[CardEvent, CardState]
 
@@ -15,7 +15,7 @@ object CardState {
     )(implicit header: EventHeader): CardState = {
       event match {
         case CardCreated(listId, title, description) => {
-          CreatedCardState(header.entityId, listId, title, description)
+          CreatedCardState(listId, title, description)
         }
         case _ => {
           throw new IllegalStateException(
@@ -27,13 +27,11 @@ object CardState {
   }
 
   case class CreatedCardState(
-      entityId: String,
       listId: String,
       title: String,
       description: Option[String],
       status: CardStatus = CardStatus.Active
-  ) extends CardState
-      with EntityId[String] {
+  ) extends CardState {
     override def applyEvent(
         event: CardEvent
     )(implicit header: EventHeader): CardState = {

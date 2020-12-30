@@ -39,7 +39,6 @@ class BoardEntitySpec
       )
       result.stateOfType[CreatedBoardState] should be(
         CreatedBoardState(
-          entityId,
           title,
           description,
           Seq.empty,
