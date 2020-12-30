@@ -60,8 +60,6 @@ trait EntityType[C <: Command, E <: Event, S] {
   type Reply = ReplyEffect[WrappedEvent, S]
   type CommandHandler =
     (S, WrappedCommand) => ReplyEffect[WrappedEvent, S]
-  type ActorRefType = ActorRef[ShardingEnvelope[WrappedCommand]]
-  type EntityRefType = EntityRef[WrappedCommand]
 }
 
 trait EventWrapper[E <: Event] {
@@ -154,13 +152,13 @@ abstract class EntitySharding[C <: Command, E <: Event, S <: EntityState[
     sharding: ClusterSharding
 ) extends EntityType[C, E, S] {
 
-  val actorRef: ActorRefType = sharding.init(
+  val actorRef: ActorRef[ShardingEnvelope[WrappedCommand]] = sharding.init(
     Entity(entity.typeKey) { entityContext =>
       entity.apply(entityContext.entityId)
     }
   )
 
-  def getEntity(entityId: String): EntityRefType = {
+  def getEntity(entityId: String): EntityRef[WrappedCommand] = {
     sharding.entityRefFor(entity.typeKey, entityId)
   }
 
