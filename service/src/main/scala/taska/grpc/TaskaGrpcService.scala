@@ -10,6 +10,7 @@ import taska.entity.card.CardEntity
 import taska.entity.list.ListCommand._
 import taska.entity.list.ListEntity
 import taska.grpc.TaskaGrpcService.toUpdateCommands
+import taska.id.Id
 import taska.proto.TaskaServiceGrpc.TaskaService
 import taska.proto.UpdateBoardReq.Update.Cmd.{
   PUpdateBoardDescriptionCmd,
@@ -28,7 +29,6 @@ import taska.proto.UpdateListReq.PUpdateListTitleOp
 import taska.proto.UpdateListReq.Update.Cmd.PUpdateListTitleCmd
 import taska.proto._
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -93,7 +93,7 @@ class TaskaGrpcService(
     TaskaServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def createBoard(req: CreateBoardReq): Future[CreateBoardRes] = {
-    val id = UUID.randomUUID().toString.replace("-", "")
+    val id = Id.gen()
     boardEntity
       .runCommand(
         id,
@@ -142,7 +142,7 @@ class TaskaGrpcService(
   }
 
   override def createList(req: CreateListReq): Future[CreateListRes] = {
-    val id = UUID.randomUUID().toString.replace("-", "")
+    val id = Id.gen()
     listEntity
       .runCommand(
         id,
@@ -190,7 +190,7 @@ class TaskaGrpcService(
   }
 
   override def createCard(req: CreateCardReq): Future[CreateCardRes] = {
-    val id = UUID.randomUUID().toString.replace("-", "")
+    val id = Id.gen()
     cardEntity
       .runCommand(
         id,
