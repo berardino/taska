@@ -26,8 +26,11 @@ object BoardCommandHandler
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case _: CreatedBoardState => {
+      case state: CreatedBoardState => {
         cmd match {
+          case GetBoard(replyTo) => {
+            Effect.none.thenReply(replyTo)(_ => state)
+          }
           case ArchiveBoard(replyTo) => {
             persist(BoardArchived())
               .thenReply(replyTo)(_ => Done)

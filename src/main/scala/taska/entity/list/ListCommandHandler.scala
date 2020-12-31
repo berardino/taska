@@ -30,8 +30,11 @@ object ListCommandHandler
           case _ => Effect.unhandled.thenNoReply()
         }
       }
-      case _: CreatedListState => {
+      case state: CreatedListState => {
         cmd match {
+          case GetList(replyTo) => {
+            Effect.none.thenReply(replyTo)(_ => state)
+          }
           case ArchiveList(replyTo) => {
             persist(ListArchived())
               .thenReply(replyTo)(_ => Done)

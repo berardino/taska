@@ -45,6 +45,14 @@ class ListEntitySpec
 
   "list" can {
 
+    "retrieved" in {
+      val result =
+        behaviorTestKit.runCommand[CreatedListState](reply =>
+          ListCommandEnvelope(commandHeader, GetList(reply))
+        )
+      result.reply should be(getState[CreatedListState])
+    }
+
     "be archived" in {
       val result =
         behaviorTestKit.runCommand[Done](reply =>

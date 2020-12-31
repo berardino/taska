@@ -5,36 +5,51 @@ import "google/protobuf/wrappers.proto";
 package taska.proto.board;
 
 message CreateBoardReq {
-  string id = 1;
-  string title = 2;
-  google.protobuf.StringValue description = 3;
+  string title = 1;
+  google.protobuf.StringValue description = 2;
 }
+
 message CreateBoardRes {
+  string id = 1;
 }
+
+message GetBoardReq {
+  string id = 1;
+}
+
+message GetBoardRes {
+  string title = 1;
+  google.protobuf.StringValue description = 2;
+}
+
 message ArchiveBoardReq {
   string id = 1;
 }
+
 message ArchiveBoardRes {
 }
+
 message UnArchiveBoardReq {
   string id = 1;
 }
+
 message UnArchiveBoardRes {
 }
+
 message UpdateBoardReq {
   string id = 1;
   repeated Update updates = 2;
 
   message Update {
-    oneof update {
-      UpdateTitle title = 1;
-      UpdateDescription description = 2;
+    oneof cmd {
+      Title update_title = 1;
+      Description update_description = 2;
     }
   }
-  message UpdateTitle {
+  message Title {
     string title = 1;
   }
-  message UpdateDescription {
+  message Description {
     google.protobuf.StringValue description = 1;
   }
 
@@ -44,6 +59,7 @@ message UpdateBoardRes {
 
 service BoardService {
   rpc Create (CreateBoardReq) returns (CreateBoardRes);
+  rpc Get (GetBoardReq) returns (GetBoardRes);
   rpc Archive (ArchiveBoardReq) returns (ArchiveBoardRes);
   rpc UnArchive (UnArchiveBoardReq) returns (UnArchiveBoardRes);
   rpc Update (UpdateBoardReq) returns (UpdateBoardRes);

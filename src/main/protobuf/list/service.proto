@@ -1,29 +1,63 @@
 syntax = "proto3";
 
+import "google/protobuf/wrappers.proto";
+
 package taska.proto.list;
 
 message CreateListReq {
-  string id = 1;
-  string board_id = 2;
-  string title = 3;
+  string board_id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
 }
+
 message CreateListRes {
+  string id = 1;
 }
+
+message GetListReq {
+  string id = 1;
+}
+
+message GetListRes {
+  string board_id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
+}
+
 message ArchiveListReq {
+  string id = 1;
 }
+
 message ArchiveListRes {
 }
+
 message UnArchiveListReq {
+  string id = 1;
 }
+
 message UnArchiveListRes {
 }
+
 message UpdateListReq {
+  string id = 1;
+  repeated Update updates = 2;
+
+  message Update {
+    oneof cmd {
+      Title update_title = 1;
+    }
+  }
+  message Title {
+    string title = 1;
+  }
 }
+
 message UpdateListRes {
 }
 
 service ListService {
   rpc Create (CreateListReq) returns (CreateListRes);
+  rpc Get (GetListReq) returns (GetListRes);
   rpc Archive (ArchiveListReq) returns (ArchiveListRes);
   rpc UnArchive (UnArchiveListReq) returns (UnArchiveListRes);
   rpc Update (UpdateListReq) returns (UpdateListRes);

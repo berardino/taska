@@ -6,22 +6,25 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import taska.entity.card.CardCommand.{
   ArchiveCard,
   CreateCard,
+  GetCard,
   UnArchiveCard,
   UpdateCard
 }
 import taska.entity._
+import taska.entity.card.CardState.CreatedCardState
 import taska.request.RequestContext
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
   Array(
     new JsonSubTypes.Type(value = classOf[CreateCard], name = "create"),
+    new JsonSubTypes.Type(value = classOf[GetCard], name = "get"),
     new JsonSubTypes.Type(value = classOf[ArchiveCard], name = "archive"),
     new JsonSubTypes.Type(value = classOf[UnArchiveCard], name = "unarchive"),
     new JsonSubTypes.Type(value = classOf[UpdateCard], name = "update")
   )
 )
-sealed trait CardCommand extends Command with ReplyTo[Done]
+sealed trait CardCommand extends Command
 
 case class CardCommandEnvelope(header: CommandHeader, cmd: CardCommand)
     extends CommandEnvelope[CardCommand]
@@ -41,10 +44,25 @@ object CardCommand {
       title: String,
       description: Option[String]
   ) extends CardCommand
+      with ReplyTo[Done]
 
-  case class ArchiveCard(replyTo: ActorRef[Done]) extends CardCommand
+  case class GetCard(replyTo: ActorRef[CreatedCardState])
+      extends CardCommand
+      with ReplyTo[CreatedCardState]
 
-  case class UnArchiveCard(replyTo: ActorRef[Done]) extends CardCommand
+  case class ArchiveCard(replyTo: ActorRef[Done])
+      extends CardCommand
+      with ReplyTo[Done]
+
+  case class UnArchiveCard(replyTo: ActorRef[Done])
+      extends CardCommand
+      with ReplyTo[Done]
+
+  case class UpdateCard(
+      replyTo: ActorRef[Done],
+      updates: Seq[UpdateCardCommand]
+  ) extends CardCommand
+      with ReplyTo[Done]
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
@@ -65,10 +83,5 @@ object CardCommand {
   case class UpdateCardDescription(
       description: Option[String]
   ) extends UpdateCardCommand
-
-  case class UpdateCard(
-      replyTo: ActorRef[Done],
-      updates: Seq[UpdateCardCommand]
-  ) extends CardCommand
 
 }

@@ -5,28 +5,63 @@ import "google/protobuf/wrappers.proto";
 package taska.proto.card;
 
 message CreateCardReq {
-  string id = 1;
-  string list_id = 2;
-  string title = 3;
-  google.protobuf.StringValue description = 4;
+  string list_id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
 }
+
 message CreateCardRes {
+  string id = 1;
 }
+
+message GetCardReq {
+  string id = 1;
+}
+
+message GetCardRes {
+  string list_id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
+}
+
 message ArchiveCardReq {
+  string id = 1;
 }
+
 message ArchiveCardRes {
 }
+
 message UnArchiveCardReq {
+  string id = 1;
 }
+
 message UnArchiveCardRes {
 }
+
 message UpdateCardReq {
+  string id = 1;
+  repeated Update updates = 2;
+
+  message Update {
+    oneof cmd {
+      Title update_title = 1;
+      Description update_description = 2;
+    }
+  }
+  message Title {
+    string title = 1;
+  }
+  message Description {
+    google.protobuf.StringValue description = 1;
+  }
 }
+
 message UpdateCardRes {
 }
 
 service CardService {
   rpc Create (CreateCardReq) returns (CreateCardRes);
+  rpc Get (GetCardReq) returns (GetCardRes);
   rpc Archive (ArchiveCardReq) returns (ArchiveCardRes);
   rpc UnArchive (UnArchiveCardReq) returns (UnArchiveCardRes);
   rpc Update (UpdateCardReq) returns (UpdateCardRes);

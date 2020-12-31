@@ -46,6 +46,14 @@ class BoardEntitySpec
 
   "board" can {
 
+    "retrieved" in {
+      val result =
+        behaviorTestKit.runCommand[CreatedBoardState](reply =>
+          BoardCommandEnvelope(commandHeader, GetBoard(reply))
+        )
+      result.reply should be(getState[CreatedBoardState])
+    }
+
     "be archived" in {
       val result =
         behaviorTestKit.runCommand[Done](reply =>

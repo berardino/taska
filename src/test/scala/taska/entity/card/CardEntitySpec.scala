@@ -49,6 +49,14 @@ class CardEntitySpec
 
   "card" can {
 
+    "retrieved" in {
+      val result =
+        behaviorTestKit.runCommand[CreatedCardState](reply =>
+          CardCommandEnvelope(commandHeader, GetCard(reply))
+        )
+      result.reply should be(getState[CreatedCardState])
+    }
+
     "be archived" in {
       val result =
         behaviorTestKit.runCommand[Done](reply =>

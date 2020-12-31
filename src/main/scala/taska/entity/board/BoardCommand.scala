@@ -4,6 +4,7 @@ import akka.Done
 import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import taska.entity.board.BoardCommand._
+import taska.entity.board.BoardState.CreatedBoardState
 import taska.entity.{
   Command,
   CommandEnvelope,
@@ -17,13 +18,14 @@ import taska.request.RequestContext
 @JsonSubTypes(
   Array(
     new JsonSubTypes.Type(value = classOf[CreateBoard], name = "create"),
+    new JsonSubTypes.Type(value = classOf[GetBoard], name = "get"),
     new JsonSubTypes.Type(value = classOf[ArchiveBoard], name = "archive"),
     new JsonSubTypes.Type(value = classOf[UnArchiveBoard], name = "unarchive"),
     new JsonSubTypes.Type(value = classOf[BoardAddList], name = "addlist"),
     new JsonSubTypes.Type(value = classOf[UpdateBoard], name = "update")
   )
 )
-sealed trait BoardCommand extends Command with ReplyTo[Done]
+sealed trait BoardCommand extends Command
 
 case class BoardCommandEnvelope(header: CommandHeader, cmd: BoardCommand)
     extends CommandEnvelope[BoardCommand]
@@ -42,19 +44,34 @@ object BoardCommand {
       title: String,
       description: Option[String] = None
   ) extends BoardCommand
+      with ReplyTo[Done]
+
+  case class GetBoard(
+      replyTo: ActorRef[CreatedBoardState]
+  ) extends BoardCommand
+      with ReplyTo[CreatedBoardState]
 
   case class ArchiveBoard(
       replyTo: ActorRef[Done]
   ) extends BoardCommand
+      with ReplyTo[Done]
 
   case class UnArchiveBoard(
       replyTo: ActorRef[Done]
   ) extends BoardCommand
+      with ReplyTo[Done]
 
   case class BoardAddList(
       replyTo: ActorRef[Done],
       listId: String
   ) extends BoardCommand
+      with ReplyTo[Done]
+
+  case class UpdateBoard(
+      replyTo: ActorRef[Done],
+      updates: Seq[UpdateBoardCommand]
+  ) extends BoardCommand
+      with ReplyTo[Done]
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
@@ -75,9 +92,4 @@ object BoardCommand {
   case class UpdateBoardDescription(
       description: Option[String]
   ) extends UpdateBoardCommand
-
-  case class UpdateBoard(
-      replyTo: ActorRef[Done],
-      updates: Seq[UpdateBoardCommand]
-  ) extends BoardCommand
 }
