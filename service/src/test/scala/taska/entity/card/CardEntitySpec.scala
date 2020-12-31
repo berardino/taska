@@ -91,7 +91,7 @@ class CardEntitySpec
         behaviorTestKit.runCommand[Done](reply =>
           CardCommandEnvelope(
             commandHeader,
-            UpdateCard(reply, Seq(UpdateCardTitle(newTitle)))
+            UpdateCard(reply, Seq(UpdateCardTitleOp(newTitle)))
           )
         )
 
@@ -112,7 +112,7 @@ class CardEntitySpec
         behaviorTestKit.runCommand[Done](reply =>
           CardCommandEnvelope(
             commandHeader,
-            UpdateCard(reply, Seq(UpdateCardDescription(newDescription)))
+            UpdateCard(reply, Seq(UpdateCardDescriptionOp(newDescription)))
           )
         )
 

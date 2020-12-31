@@ -44,14 +44,14 @@ message UpdateCardReq {
 
   message Update {
     oneof cmd {
-      UpdateCardTitleOp update_card_title_cmd = 1;
-      UpdateCardDescriptionOp update_card_description_cmd = 2;
+      PUpdateCardTitleOp p_update_card_title_cmd = 1;
+      PUpdateCardDescriptionOp p_update_card_description_cmd = 2;
     }
   }
-  message UpdateCardTitleOp {
+  message PUpdateCardTitleOp {
     string title = 1;
   }
-  message UpdateCardDescriptionOp {
+  message PUpdateCardDescriptionOp {
     google.protobuf.StringValue description = 1;
   }
 }

@@ -42,14 +42,14 @@ message UpdateBoardReq {
 
   message Update {
     oneof cmd {
-      UpdateBoardTitleOp update_board_title_cmd = 1;
-      UpdateBoardDescriptionOp update_board_description_cmd = 2;
+      PUpdateBoardTitleOp p_update_board_title_cmd = 1;
+      PUpdateBoardDescriptionOp p_update_board_description_cmd = 2;
     }
   }
-  message UpdateBoardTitleOp {
+  message PUpdateBoardTitleOp {
     string title = 1;
   }
-  message UpdateBoardDescriptionOp {
+  message PUpdateBoardDescriptionOp {
     google.protobuf.StringValue description = 1;
   }
 

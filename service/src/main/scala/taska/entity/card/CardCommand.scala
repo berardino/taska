@@ -60,28 +60,28 @@ object CardCommand {
 
   case class UpdateCard(
       replyTo: ActorRef[Done],
-      updates: Seq[UpdateCardCommand]
+      updateOps: Seq[UpdateCardOp]
   ) extends CardCommand
       with ReplyTo[Done]
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
     Array(
-      new JsonSubTypes.Type(value = classOf[UpdateCardTitle], name = "title"),
+      new JsonSubTypes.Type(value = classOf[UpdateCardTitleOp], name = "title"),
       new JsonSubTypes.Type(
-        value = classOf[UpdateCardDescription],
+        value = classOf[UpdateCardDescriptionOp],
         name = "description"
       )
     )
   )
-  sealed trait UpdateCardCommand
+  sealed trait UpdateCardOp
 
-  case class UpdateCardTitle(
+  case class UpdateCardTitleOp(
       title: String
-  ) extends UpdateCardCommand
+  ) extends UpdateCardOp
 
-  case class UpdateCardDescription(
+  case class UpdateCardDescriptionOp(
       description: Option[String]
-  ) extends UpdateCardCommand
+  ) extends UpdateCardOp
 
 }

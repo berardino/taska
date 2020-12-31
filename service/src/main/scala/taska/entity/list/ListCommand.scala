@@ -59,18 +59,18 @@ object ListCommand {
 
   case class UpdateList(
       replyTo: ActorRef[Done],
-      updates: Seq[UpdateListCommand]
+      updateOps: Seq[UpdateListOp]
   ) extends ListCommand
       with ReplyTo[Done]
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
     Array(
-      new JsonSubTypes.Type(value = classOf[UpdateListTitle], name = "title")
+      new JsonSubTypes.Type(value = classOf[UpdateListTitleOp], name = "title")
     )
   )
-  sealed trait UpdateListCommand
-  case class UpdateListTitle(
+  sealed trait UpdateListOp
+  case class UpdateListTitleOp(
       title: String
-  ) extends UpdateListCommand
+  ) extends UpdateListOp
 }

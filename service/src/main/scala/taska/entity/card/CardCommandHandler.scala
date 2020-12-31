@@ -46,10 +46,10 @@ object CardCommandHandler
           }
           case UpdateCard(replyTo, updates) => {
             val events = updates.map {
-              case UpdateCardTitle(title) => {
+              case UpdateCardTitleOp(title) => {
                 CardTitleUpdated(title)
               }
-              case UpdateCardDescription(description) => {
+              case UpdateCardDescriptionOp(description) => {
                 CardDescriptionUpdated(description)
               }
             }

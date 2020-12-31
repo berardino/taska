@@ -106,7 +106,7 @@ class BoardEntitySpec
         behaviorTestKit.runCommand[Done](reply =>
           BoardCommandEnvelope(
             commandHeader,
-            UpdateBoard(reply, Seq(UpdateBoardTitle(newTitle)))
+            UpdateBoard(reply, Seq(UpdateBoardTitleOp(newTitle)))
           )
         )
 
@@ -127,7 +127,7 @@ class BoardEntitySpec
         behaviorTestKit.runCommand[Done](reply =>
           BoardCommandEnvelope(
             commandHeader,
-            UpdateBoard(reply, Seq(UpdateBoardDescription(newDescription)))
+            UpdateBoard(reply, Seq(UpdateBoardDescriptionOp(newDescription)))
           )
         )
 

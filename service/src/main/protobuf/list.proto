@@ -44,10 +44,10 @@ message UpdateListReq {
 
   message Update {
     oneof cmd {
-      UpdateListTitleOp update_list_title_cmd = 1;
+      PUpdateListTitleOp p_update_list_title_cmd = 1;
     }
   }
-  message UpdateListTitleOp {
+  message PUpdateListTitleOp {
     string title = 1;
   }
 }

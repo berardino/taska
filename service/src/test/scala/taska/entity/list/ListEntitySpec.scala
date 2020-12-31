@@ -87,7 +87,7 @@ class ListEntitySpec
         behaviorTestKit.runCommand[Done](reply =>
           ListCommandEnvelope(
             commandHeader,
-            UpdateList(reply, Seq(UpdateListTitle(newTitle)))
+            UpdateList(reply, Seq(UpdateListTitleOp(newTitle)))
           )
         )
 

@@ -69,27 +69,30 @@ object BoardCommand {
 
   case class UpdateBoard(
       replyTo: ActorRef[Done],
-      updates: Seq[UpdateBoardCommand]
+      updateOps: Seq[UpdateBoardOp]
   ) extends BoardCommand
       with ReplyTo[Done]
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes(
     Array(
-      new JsonSubTypes.Type(value = classOf[UpdateBoardTitle], name = "title"),
       new JsonSubTypes.Type(
-        value = classOf[UpdateBoardDescription],
+        value = classOf[UpdateBoardTitleOp],
+        name = "title"
+      ),
+      new JsonSubTypes.Type(
+        value = classOf[UpdateBoardDescriptionOp],
         name = "description"
       )
     )
   )
-  sealed trait UpdateBoardCommand
+  sealed trait UpdateBoardOp
 
-  case class UpdateBoardTitle(
+  case class UpdateBoardTitleOp(
       title: String
-  ) extends UpdateBoardCommand
+  ) extends UpdateBoardOp
 
-  case class UpdateBoardDescription(
+  case class UpdateBoardDescriptionOp(
       description: Option[String]
-  ) extends UpdateBoardCommand
+  ) extends UpdateBoardOp
 }

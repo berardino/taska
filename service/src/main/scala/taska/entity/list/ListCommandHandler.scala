@@ -45,7 +45,7 @@ object ListCommandHandler
           }
           case UpdateList(replyTo, updates) => {
             val events = updates.map {
-              case UpdateListTitle(title) => {
+              case UpdateListTitleOp(title) => {
                 ListTitleUpdated(title)
               }
             }

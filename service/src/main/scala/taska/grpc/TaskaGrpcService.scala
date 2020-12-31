@@ -12,17 +12,20 @@ import taska.entity.list.ListEntity
 import taska.grpc.TaskaGrpcService.toUpdateCommands
 import taska.proto.TaskaServiceGrpc.TaskaService
 import taska.proto.UpdateBoardReq.Update.Cmd.{
-  UpdateBoardDescriptionCmd,
-  UpdateBoardTitleCmd
+  PUpdateBoardDescriptionCmd,
+  PUpdateBoardTitleCmd
 }
-import taska.proto.UpdateBoardReq.{UpdateBoardDescriptionOp, UpdateBoardTitleOp}
+import taska.proto.UpdateBoardReq.{
+  PUpdateBoardDescriptionOp,
+  PUpdateBoardTitleOp
+}
 import taska.proto.UpdateCardReq.Update.Cmd.{
-  UpdateCardDescriptionCmd,
-  UpdateCardTitleCmd
+  PUpdateCardDescriptionCmd,
+  PUpdateCardTitleCmd
 }
-import taska.proto.UpdateCardReq.{UpdateCardDescriptionOp, UpdateCardTitleOp}
-import taska.proto.UpdateListReq.Update.Cmd.UpdateListTitleCmd
-import taska.proto.UpdateListReq.UpdateListTitleOp
+import taska.proto.UpdateCardReq.{PUpdateCardDescriptionOp, PUpdateCardTitleOp}
+import taska.proto.UpdateListReq.PUpdateListTitleOp
+import taska.proto.UpdateListReq.Update.Cmd.PUpdateListTitleCmd
 import taska.proto._
 
 import java.util.UUID
@@ -32,15 +35,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object TaskaGrpcService {
 
-  def toUpdateCommands(req: UpdateBoardReq): Seq[UpdateBoardCommand] = {
+  def toUpdateCommands(req: UpdateBoardReq): Seq[UpdateBoardOp] = {
     req.updates.map(_.cmd).flatMap {
-      case UpdateBoardTitleCmd(UpdateBoardTitleOp(title, _)) => {
-        Some(UpdateBoardTitle(title))
+      case PUpdateBoardTitleCmd(PUpdateBoardTitleOp(title, _)) => {
+        Some(UpdateBoardTitleOp(title))
       }
-      case UpdateBoardDescriptionCmd(
-            UpdateBoardDescriptionOp(description, _)
+      case PUpdateBoardDescriptionCmd(
+            PUpdateBoardDescriptionOp(description, _)
           ) => {
-        Some(UpdateBoardDescription(description))
+        Some(UpdateBoardDescriptionOp(description))
       }
       case _ => {
         None
@@ -48,10 +51,10 @@ object TaskaGrpcService {
     }
   }
 
-  def toUpdateCommands(req: UpdateListReq): Seq[UpdateListCommand] = {
+  def toUpdateCommands(req: UpdateListReq): Seq[UpdateListOp] = {
     req.updates.map(_.cmd).flatMap {
-      case UpdateListTitleCmd(UpdateListTitleOp(title, _)) => {
-        Some(UpdateListTitle(title))
+      case PUpdateListTitleCmd(PUpdateListTitleOp(title, _)) => {
+        Some(UpdateListTitleOp(title))
       }
       case _ => {
         None
@@ -59,15 +62,15 @@ object TaskaGrpcService {
     }
   }
 
-  def toUpdateCommands(req: UpdateCardReq): Seq[UpdateCardCommand] = {
+  def toUpdateCommands(req: UpdateCardReq): Seq[UpdateCardOp] = {
     req.updates.map(_.cmd).flatMap {
-      case UpdateCardTitleCmd(UpdateCardTitleOp(title, _)) => {
-        Some(UpdateCardTitle(title))
+      case PUpdateCardTitleCmd(PUpdateCardTitleOp(title, _)) => {
+        Some(UpdateCardTitleOp(title))
       }
-      case UpdateCardDescriptionCmd(
-            UpdateCardDescriptionOp(description, _)
+      case PUpdateCardDescriptionCmd(
+            PUpdateCardDescriptionOp(description, _)
           ) => {
-        Some(UpdateCardDescription(description))
+        Some(UpdateCardDescriptionOp(description))
       }
       case _ => {
         None

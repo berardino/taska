@@ -45,10 +45,10 @@ object BoardCommandHandler
           }
           case UpdateBoard(replyTo, updates) => {
             val events = updates.map {
-              case UpdateBoardTitle(title) => {
+              case UpdateBoardTitleOp(title) => {
                 BoardTitleUpdated(title)
               }
-              case UpdateBoardDescription(description) => {
+              case UpdateBoardDescriptionOp(description) => {
                 BoardDescriptionUpdated(
                   description
                 )
