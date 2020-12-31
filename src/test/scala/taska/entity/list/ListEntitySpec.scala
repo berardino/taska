@@ -10,9 +10,7 @@ import taska.entity.list.ListEvent.{
   ListUnArchived
 }
 import taska.entity.list.ListState.CreatedListState
-import taska.entity.{CommandHeader, EventHeader}
 import taska.gen.Synth
-import taska.request.RequestContext
 import taska.spec.{PersistenceSpec, UnitSpec}
 
 class ListEntitySpec
@@ -21,10 +19,6 @@ class ListEntitySpec
     )
     with UnitSpec {
 
-  val entityId: String = genStr()
-  implicit val ctx: RequestContext = RequestContext()
-  implicit val commandHeader: CommandHeader = CommandHeader(entityId, ctx)
-  implicit val eventHeader: EventHeader = EventHeader(entityId, ctx)
   val title: String = genStr()
   val boardId: String = genStr()
 

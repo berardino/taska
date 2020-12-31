@@ -5,8 +5,9 @@ import "google/protobuf/wrappers.proto";
 package taska.proto.board;
 
 message CreateBoardReq {
-  string title = 1;
-  google.protobuf.StringValue description = 2;
+  string id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
 }
 message CreateBoardRes {
 }

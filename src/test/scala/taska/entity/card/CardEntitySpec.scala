@@ -5,9 +5,7 @@ import taska.entity.card.CardCommand._
 import taska.entity.card.CardEnum.CardStatus
 import taska.entity.card.CardEvent._
 import taska.entity.card.CardState.CreatedCardState
-import taska.entity.{CommandHeader, EventHeader}
 import taska.gen.Synth
-import taska.request.RequestContext
 import taska.spec.{PersistenceSpec, UnitSpec}
 
 class CardEntitySpec
@@ -15,11 +13,6 @@ class CardEntitySpec
       CardEntity(Synth.genStr())
     )
     with UnitSpec {
-
-  val entityId: String = genStr()
-  implicit val ctx: RequestContext = RequestContext()
-  implicit val commandHeader: CommandHeader = CommandHeader(entityId, ctx)
-  implicit val eventHeader: EventHeader = EventHeader(entityId, ctx)
 
   val title: String = genStr()
   val listId: String = genStr()

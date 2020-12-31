@@ -5,9 +5,10 @@ import "google/protobuf/wrappers.proto";
 package taska.proto.card;
 
 message CreateCardReq {
-  string list_id = 1;
-  string title = 2;
-  google.protobuf.StringValue description = 3;
+  string id = 1;
+  string list_id = 2;
+  string title = 3;
+  google.protobuf.StringValue description = 4;
 }
 message CreateCardRes {
 }

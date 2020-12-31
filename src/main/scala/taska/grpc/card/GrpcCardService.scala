@@ -8,9 +8,7 @@ import taska.entity.card.CardEntity
 import taska.grpc.GrpcService
 import taska.proto.card.CardServiceGrpc.CardService
 import taska.proto.card._
-import taska.request.RequestContext
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,11 +25,9 @@ class GrpcCardService(
     CardServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateCardReq): Future[CreateCardRes] = {
-    val entityId = UUID.randomUUID().toString
-    implicit val ctx = RequestContext()
     entity
       .runCommand(
-        entityId,
+        req.id,
         replyTo =>
           CreateCard(
             replyTo,

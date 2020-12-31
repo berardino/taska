@@ -8,9 +8,7 @@ import taska.entity.list.ListEntity
 import taska.grpc.GrpcService
 import taska.proto.list.ListServiceGrpc.ListService
 import taska.proto.list._
-import taska.request.RequestContext
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,11 +25,9 @@ class GrpcListService(
     ListServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateListReq): Future[CreateListRes] = {
-    val entityId = UUID.randomUUID().toString
-    implicit val ctx = RequestContext()
     entity
       .runCommand(
-        entityId,
+        req.id,
         replyTo => CreateList(replyTo, req.boardId, req.title)
       )
       .map(_ => CreateListRes())

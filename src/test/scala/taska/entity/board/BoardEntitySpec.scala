@@ -5,9 +5,7 @@ import taska.entity.board.BoardCommand._
 import taska.entity.board.BoardEnum.BoardStatus
 import taska.entity.board.BoardEvent._
 import taska.entity.board.BoardState.CreatedBoardState
-import taska.entity.{CommandHeader, EventHeader}
 import taska.gen.Synth
-import taska.request.RequestContext
 import taska.spec.{PersistenceSpec, UnitSpec}
 
 class BoardEntitySpec
@@ -15,11 +13,6 @@ class BoardEntitySpec
       BoardEntity(Synth.genStr())
     )
     with UnitSpec {
-
-  val entityId: String = genStr()
-  implicit val ctx: RequestContext = RequestContext()
-  implicit val commandHeader: CommandHeader = CommandHeader(entityId, ctx)
-  implicit val eventHeader: EventHeader = EventHeader(entityId, ctx)
 
   "board" must {
 

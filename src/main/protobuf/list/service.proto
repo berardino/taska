@@ -3,8 +3,9 @@ syntax = "proto3";
 package taska.proto.list;
 
 message CreateListReq {
-  string board_id = 1;
-  string title = 2;
+  string id = 1;
+  string board_id = 2;
+  string title = 3;
 }
 message CreateListRes {
 }

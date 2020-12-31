@@ -9,11 +9,14 @@ import io.grpc.{
   ServerInterceptors,
   ServerServiceDefinition
 }
+import taska.request.RequestContext
 
 import java.net.InetSocketAddress
 
 trait GrpcService {
   def bindService: ServerServiceDefinition
+  implicit def currentContext: RequestContext =
+    ContextKeys.RequestContextContextKey.get()
 }
 
 class GrpcServer(server: Server) {

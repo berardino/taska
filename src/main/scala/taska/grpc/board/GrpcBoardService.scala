@@ -8,9 +8,7 @@ import taska.entity.board.BoardEntitySharding
 import taska.grpc.GrpcService
 import taska.proto.board.BoardServiceGrpc.BoardService
 import taska.proto.board._
-import taska.request.RequestContext
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,11 +25,9 @@ class GrpcBoardService(
     BoardServiceGrpc.bindService(this, ExecutionContext.global)
 
   override def create(req: CreateBoardReq): Future[CreateBoardRes] = {
-    val entityId = UUID.randomUUID().toString
-    implicit val ctx = RequestContext()
     entity
       .runCommand(
-        entityId,
+        req.id,
         replyTo => CreateBoard(replyTo, req.title, req.description)
       )
       .map(_ => CreateBoardRes())
