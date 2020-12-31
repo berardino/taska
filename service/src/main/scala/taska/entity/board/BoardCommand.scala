@@ -5,13 +5,7 @@ import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import taska.entity.board.BoardCommand._
 import taska.entity.board.BoardState.CreatedBoardState
-import taska.entity.{
-  Command,
-  CommandEnvelope,
-  CommandHeader,
-  CommandWrapper,
-  ReplyTo
-}
+import taska.entity._
 import taska.request.RequestContext
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

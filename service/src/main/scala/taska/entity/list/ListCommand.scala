@@ -3,14 +3,8 @@ package taska.entity.list
 import akka.Done
 import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import taska.entity.list.ListCommand.{
-  ArchiveList,
-  CreateList,
-  GetList,
-  UnArchiveList,
-  UpdateList
-}
 import taska.entity._
+import taska.entity.list.ListCommand._
 import taska.entity.list.ListState.CreatedListState
 import taska.request.RequestContext
 

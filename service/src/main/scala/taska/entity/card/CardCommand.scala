@@ -3,14 +3,8 @@ package taska.entity.card
 import akka.Done
 import akka.actor.typed.ActorRef
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import taska.entity.card.CardCommand.{
-  ArchiveCard,
-  CreateCard,
-  GetCard,
-  UnArchiveCard,
-  UpdateCard
-}
 import taska.entity._
+import taska.entity.card.CardCommand._
 import taska.entity.card.CardState.CreatedCardState
 import taska.request.RequestContext
 
