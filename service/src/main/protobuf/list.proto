@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package taska.proto.list;
+package taska.proto;
 
 message CreateListReq {
   string board_id = 1;
@@ -44,21 +44,13 @@ message UpdateListReq {
 
   message Update {
     oneof cmd {
-      Title update_title = 1;
+      UpdateListTitleOp update_list_title_cmd = 1;
     }
   }
-  message Title {
+  message UpdateListTitleOp {
     string title = 1;
   }
 }
 
 message UpdateListRes {
-}
-
-service ListService {
-  rpc Create (CreateListReq) returns (CreateListRes);
-  rpc Get (GetListReq) returns (GetListRes);
-  rpc Archive (ArchiveListReq) returns (ArchiveListRes);
-  rpc UnArchive (UnArchiveListReq) returns (UnArchiveListRes);
-  rpc Update (UpdateListReq) returns (UpdateListRes);
 }

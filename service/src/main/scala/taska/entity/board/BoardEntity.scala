@@ -13,7 +13,7 @@ object BoardEntity
 }
 
 @Component
-class BoardEntitySharding(sharding: ClusterSharding)
+class BoardEntity(sharding: ClusterSharding)
     extends EntitySharding[BoardCommand, BoardEvent, BoardState](
       BoardEntity,
       sharding

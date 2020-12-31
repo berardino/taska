@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package taska.proto.board;
+package taska.proto;
 
 message CreateBoardReq {
   string title = 1;
@@ -42,25 +42,17 @@ message UpdateBoardReq {
 
   message Update {
     oneof cmd {
-      Title update_title = 1;
-      Description update_description = 2;
+      UpdateBoardTitleOp update_board_title_cmd = 1;
+      UpdateBoardDescriptionOp update_board_description_cmd = 2;
     }
   }
-  message Title {
+  message UpdateBoardTitleOp {
     string title = 1;
   }
-  message Description {
+  message UpdateBoardDescriptionOp {
     google.protobuf.StringValue description = 1;
   }
 
 }
 message UpdateBoardRes {
-}
-
-service BoardService {
-  rpc Create (CreateBoardReq) returns (CreateBoardRes);
-  rpc Get (GetBoardReq) returns (GetBoardRes);
-  rpc Archive (ArchiveBoardReq) returns (ArchiveBoardRes);
-  rpc UnArchive (UnArchiveBoardReq) returns (UnArchiveBoardRes);
-  rpc Update (UpdateBoardReq) returns (UpdateBoardRes);
 }

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package taska.proto.card;
+package taska.proto;
 
 message CreateCardReq {
   string list_id = 1;
@@ -44,25 +44,17 @@ message UpdateCardReq {
 
   message Update {
     oneof cmd {
-      Title update_title = 1;
-      Description update_description = 2;
+      UpdateCardTitleOp update_card_title_cmd = 1;
+      UpdateCardDescriptionOp update_card_description_cmd = 2;
     }
   }
-  message Title {
+  message UpdateCardTitleOp {
     string title = 1;
   }
-  message Description {
+  message UpdateCardDescriptionOp {
     google.protobuf.StringValue description = 1;
   }
 }
 
 message UpdateCardRes {
-}
-
-service CardService {
-  rpc Create (CreateCardReq) returns (CreateCardRes);
-  rpc Get (GetCardReq) returns (GetCardRes);
-  rpc Archive (ArchiveCardReq) returns (ArchiveCardRes);
-  rpc UnArchive (UnArchiveCardReq) returns (UnArchiveCardRes);
-  rpc Update (UpdateCardReq) returns (UpdateCardRes);
 }

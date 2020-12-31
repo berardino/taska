@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "board.proto";
+import "card.proto";
+import "list.proto";
+
+package taska.proto;
+
+
+service TaskaService {
+  rpc CreateBoard (CreateBoardReq) returns (CreateBoardRes);
+  rpc GetBoard (GetBoardReq) returns (GetBoardRes);
+  rpc ArchiveBoard (ArchiveBoardReq) returns (ArchiveBoardRes);
+  rpc UnArchiveBoard (UnArchiveBoardReq) returns (UnArchiveBoardRes);
+  rpc UpdateBoard (UpdateBoardReq) returns (UpdateBoardRes);
+
+  rpc CreateList (CreateListReq) returns (CreateListRes);
+  rpc GetList (GetListReq) returns (GetListRes);
+  rpc ArchiveList (ArchiveListReq) returns (ArchiveListRes);
+  rpc UnArchiveList (UnArchiveListReq) returns (UnArchiveListRes);
+  rpc UpdateList (UpdateListReq) returns (UpdateListRes);
+
+  rpc CreateCard (CreateCardReq) returns (CreateCardRes);
+  rpc GetCard (GetCardReq) returns (GetCardRes);
+  rpc ArchiveCard (ArchiveCardReq) returns (ArchiveCardRes);
+  rpc UnArchiveCard (UnArchiveCardReq) returns (UnArchiveCardRes);
+  rpc UpdateCard (UpdateCardReq) returns (UpdateCardRes);
+}
