@@ -12,6 +12,7 @@ val SpringVersion = "5.3.2"
 val ScalaTestVersion = "3.2.3"
 val ScalaCheckVersion = "1.15.2"
 val FlywayVersion = "7.3.2"
+val H2Version = "1.4.200"
 
 enablePlugins(JavaServerAppPackaging)
 
@@ -56,7 +57,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
   "org.postgresql" % "postgresql" % PostgresqlVersion,
   "org.flywaydb" % "flyway-core" % FlywayVersion,
-  // Akka Projection
+  "com.h2database" % "h2" % H2Version,
+// Akka Projection
   "com.lightbend.akka" %% "akka-projection-eventsourced" % AkkaProjectionVersion,
   "com.lightbend.akka" %% "akka-projection-cassandra" % AkkaProjectionVersion,
   // Spring
