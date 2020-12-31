@@ -28,12 +28,12 @@ object PersistenceSpec {
     .withFallback(PersistenceTestKitPlugin.config)
 }
 
-abstract class PersistenceSpec[C <: Command, E <: Event, S](
-    behavior: Behavior[CommandEnvelope[C]]
-) extends ScalaTestWithActorTestKit(PersistenceSpec.config)
+abstract class PersistenceSpec[C <: Command, E <: Event, S]
+    extends ScalaTestWithActorTestKit(PersistenceSpec.config)
     with SynthLike {
 
   val entityId: String = genStr()
+  def behavior(entityId: String): Behavior[CommandEnvelope[C]]
   implicit val ctx: RequestContext = RequestContext()
   implicit val commandHeader: CommandHeader = CommandHeader(entityId, ctx)
   implicit val eventHeader: EventHeader = EventHeader(entityId, ctx)
@@ -45,7 +45,7 @@ abstract class PersistenceSpec[C <: Command, E <: Event, S](
       E
     ], S](
       system,
-      behavior,
+      behavior(entityId),
       SerializationSettings.enabled
     )
 

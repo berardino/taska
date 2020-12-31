@@ -1,18 +1,21 @@
 package taska.entity.card
 
 import akka.Done
+import akka.actor.typed.Behavior
+import taska.entity.CommandEnvelope
 import taska.entity.card.CardCommand._
 import taska.entity.card.CardEnum.CardStatus
 import taska.entity.card.CardEvent._
 import taska.entity.card.CardState.CreatedCardState
-import taska.gen.Synth
 import taska.spec.{PersistenceSpec, UnitSpec}
 
 class CardEntitySpec
-    extends PersistenceSpec[CardCommand, CardEvent, CardState](
-      CardEntity(Synth.genStr())
-    )
+    extends PersistenceSpec[CardCommand, CardEvent, CardState]
     with UnitSpec {
+
+  override def behavior(
+      entityId: String
+  ): Behavior[CommandEnvelope[CardCommand]] = CardEntity(entityId)
 
   val title: String = genStr()
   val listId: String = genStr()

@@ -1,6 +1,8 @@
 package taska.entity.list
 
 import akka.Done
+import akka.actor.typed.Behavior
+import taska.entity.CommandEnvelope
 import taska.entity.list.ListCommand._
 import taska.entity.list.ListEnum.ListStatus
 import taska.entity.list.ListEvent.{
@@ -10,14 +12,15 @@ import taska.entity.list.ListEvent.{
   ListUnArchived
 }
 import taska.entity.list.ListState.CreatedListState
-import taska.gen.Synth
 import taska.spec.{PersistenceSpec, UnitSpec}
 
 class ListEntitySpec
-    extends PersistenceSpec[ListCommand, ListEvent, ListState](
-      ListEntity(Synth.genStr())
-    )
+    extends PersistenceSpec[ListCommand, ListEvent, ListState]
     with UnitSpec {
+
+  override def behavior(
+      entityId: String
+  ): Behavior[CommandEnvelope[ListCommand]] = ListEntity(entityId)
 
   val title: String = genStr()
   val boardId: String = genStr()

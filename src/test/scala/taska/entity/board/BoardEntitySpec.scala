@@ -1,18 +1,21 @@
 package taska.entity.board
 
 import akka.Done
+import akka.actor.typed.Behavior
+import taska.entity.CommandEnvelope
 import taska.entity.board.BoardCommand._
 import taska.entity.board.BoardEnum.BoardStatus
 import taska.entity.board.BoardEvent._
 import taska.entity.board.BoardState.CreatedBoardState
-import taska.gen.Synth
 import taska.spec.{PersistenceSpec, UnitSpec}
 
 class BoardEntitySpec
-    extends PersistenceSpec[BoardCommand, BoardEvent, BoardState](
-      BoardEntity(Synth.genStr())
-    )
+    extends PersistenceSpec[BoardCommand, BoardEvent, BoardState]
     with UnitSpec {
+
+  override def behavior(
+      entityId: String
+  ): Behavior[CommandEnvelope[BoardCommand]] = BoardEntity(entityId)
 
   "board" must {
 
