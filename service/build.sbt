@@ -11,7 +11,7 @@ val PostgresqlVersion = "42.2.18"
 val SpringVersion = "5.3.2"
 val ScalaTestVersion = "3.2.3"
 val ScalaCheckVersion = "1.15.2"
-val FlywayVersion = "7.3.2"
+val FlywayVersion = "7.4.0"
 val H2Version = "1.4.200"
 
 enablePlugins(JavaServerAppPackaging)
