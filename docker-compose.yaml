@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  envoy:
+    build:
+      context: docker/envoy
+    ports: 
+      - 9901:9901
+      - 8081:8081

@@ -1,4 +1,4 @@
-# app
+# taska-app
 
 ## Project setup
 ```

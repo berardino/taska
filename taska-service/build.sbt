@@ -1,6 +1,6 @@
 import sbt.Keys.scalaVersion
 
-name := "taska"
+name := "taska-service"
 
 val AkkaVersion = "2.6.10"
 val AkkaPersistenceJdbc = "4.0.0"
@@ -20,6 +20,7 @@ PB.targets in Compile := Seq(
   scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
 )
 
+PB.protoSources in Compile := Seq(baseDirectory.value / "../taska-proto")
 mainClass in Compile := Some("taska.TaskaApp")
 
 dockerBaseImage := "openjdk:jre-slim"
