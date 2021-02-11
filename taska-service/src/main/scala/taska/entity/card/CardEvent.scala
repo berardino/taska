@@ -2,7 +2,7 @@ package taska.entity.card
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import taska.entity.card.CardEvent._
-import taska.entity.{Event, EventEnvelope, EventHeader, EventWrapper}
+import taska.entity.{Event, EventHeader, EventWrapper, PersistEventEnvelope}
 import taska.request.RequestContext
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -30,12 +30,12 @@ import taska.request.RequestContext
 sealed trait CardEvent extends Event
 
 case class CardEventEnvelope(header: EventHeader, event: CardEvent)
-    extends EventEnvelope[CardEvent]
+    extends PersistEventEnvelope[CardEvent]
 
 object CardEventWrapper extends EventWrapper[CardEvent] {
   override def wrap(entityId: String, event: CardEvent)(implicit
       ctx: RequestContext
-  ): EventEnvelope[CardEvent] =
+  ): PersistEventEnvelope[CardEvent] =
     CardEventEnvelope(EventHeader(entityId, ctx), event)
 }
 

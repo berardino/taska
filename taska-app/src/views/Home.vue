@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    {{ boardId }}
+    ciao ciao {{ boardId }}
   </div>
 </template>
 
@@ -13,8 +13,8 @@ import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 
 @Component({
   components: {
-    HelloWorld,
-  },
+    HelloWorld
+  }
 })
 export default class Home extends Vue {
   private taskaClient: TaskaServiceClient = new TaskaServiceClient(
@@ -31,7 +31,7 @@ export default class Home extends Vue {
     const desc = new StringValue();
     desc.setValue("description");
     req.setDescription(desc);
-    this.taskaClient.createBoard(req, null).then((res) => {
+    this.taskaClient.createBoard(req, null).then(res => {
       this.boardId = res.getId();
     });
   }

@@ -7,7 +7,7 @@ import taska.entity.list.ListEvent.{
   ListTitleUpdated,
   ListUnArchived
 }
-import taska.entity.{Event, EventEnvelope, EventHeader, EventWrapper}
+import taska.entity.{Event, EventHeader, EventWrapper, PersistEventEnvelope}
 import taska.request.RequestContext
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -31,12 +31,12 @@ import taska.request.RequestContext
 sealed trait ListEvent extends Event
 
 case class ListEventEnvelope(header: EventHeader, event: ListEvent)
-    extends EventEnvelope[ListEvent]
+    extends PersistEventEnvelope[ListEvent]
 
 object ListEventWrapper extends EventWrapper[ListEvent] {
   override def wrap(entityId: String, event: ListEvent)(implicit
       ctx: RequestContext
-  ): EventEnvelope[ListEvent] =
+  ): PersistEventEnvelope[ListEvent] =
     ListEventEnvelope(EventHeader(entityId, ctx), event)
 }
 

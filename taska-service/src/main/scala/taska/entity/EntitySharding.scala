@@ -1,7 +1,7 @@
 package taska.entity
 
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import akka.cluster.sharding.typed.ShardingEnvelope
 import akka.cluster.sharding.typed.scaladsl.{
   ClusterSharding,
@@ -10,17 +10,14 @@ import akka.cluster.sharding.typed.scaladsl.{
   EntityTypeKey
 }
 import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.{
-  Effect,
-  EffectBuilder,
-  EventSourcedBehavior,
-  ReplyEffect
-}
+import akka.persistence.typed.scaladsl._
 import akka.util.Timeout
+import taska.config.EventProcessorProps
 import taska.request.RequestContext
 import taska.serialization.CborSerializable
 
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 
 trait EntityId[ID] {
   val entityId: ID
@@ -45,7 +42,7 @@ trait CommandEnvelope[C <: Command] extends CborSerializable {
 case class EventHeader(entityId: String, ctx: RequestContext)
     extends EntityId[String]
 
-trait EventEnvelope[E <: Event] extends CborSerializable {
+trait PersistEventEnvelope[E <: Event] extends CborSerializable {
   val header: EventHeader
   val event: E
 }
@@ -56,7 +53,7 @@ trait EntityState[E, S] extends CborSerializable {
 
 trait EntityType[C <: Command, E <: Event, S] {
   type WrappedCommand = CommandEnvelope[C]
-  type WrappedEvent = EventEnvelope[E]
+  type WrappedEvent = PersistEventEnvelope[E]
   type Reply = ReplyEffect[WrappedEvent, S]
   type CommandHandler =
     (S, WrappedCommand) => ReplyEffect[WrappedEvent, S]
@@ -65,7 +62,7 @@ trait EntityType[C <: Command, E <: Event, S] {
 trait EventWrapper[E <: Event] {
   def wrap(entityId: String, cmd: E)(implicit
       ctx: RequestContext
-  ): EventEnvelope[E]
+  ): PersistEventEnvelope[E]
 }
 
 trait CommandWrapper[C <: Command] {
@@ -127,7 +124,10 @@ abstract class EntityDef[C <: Command, E <: Event, S <: EntityState[
       state.applyEvent(event.event)(event.header)
     }
 
-  def withEnforcedReplies(entityId: String): Behavior[WrappedCommand] =
+  def withEnforcedReplies(
+      entityId: String,
+      tags: Set[String]
+  ): Behavior[WrappedCommand] =
     Behaviors.setup { _ =>
       EventSourcedBehavior
         .withEnforcedReplies[WrappedCommand, WrappedEvent, S](
@@ -136,10 +136,21 @@ abstract class EntityDef[C <: Command, E <: Event, S <: EntityState[
           commandHandler = commandHandler,
           eventHandler = eventHandler
         )
+        .withTagger(_ => tags)
+        .withRetention(
+          RetentionCriteria
+            .snapshotEvery(numberOfEvents = 100, keepNSnapshots = 3)
+        )
+        .onPersistFailure(
+          SupervisorStrategy.restartWithBackoff(200.millis, 5.seconds, 0.1)
+        )
     }
 
-  def apply(entityId: String): Behavior[WrappedCommand] = {
-    withEnforcedReplies(entityId)
+  def apply(
+      entityId: String,
+      tags: Set[String] = Set.empty
+  ): Behavior[WrappedCommand] = {
+    withEnforcedReplies(entityId, tags)
   }
 
 }
@@ -149,13 +160,18 @@ abstract class EntitySharding[C <: Command, E <: Event, S <: EntityState[
   S
 ]](
     entity: EntityDef[C, E, S],
-    sharding: ClusterSharding
+    sharding: ClusterSharding,
+    eventProcessorProps: EventProcessorProps
 ) extends EntityType[C, E, S] {
 
   val actorRef: ActorRef[ShardingEnvelope[WrappedCommand]] = sharding.init(
     Entity(entity.typeKey) { entityContext =>
-      entity.apply(entityContext.entityId)
-    }
+      val n = math.abs(
+        entityContext.entityId.hashCode % eventProcessorProps.parallelism
+      )
+      val eventProcessorTag = s"${eventProcessorProps.tagPrefix}-${n}"
+      entity.apply(entityContext.entityId, Set(eventProcessorTag))
+    }.withRole("write-model")
   )
 
   def getEntity(entityId: String): EntityRef[WrappedCommand] = {

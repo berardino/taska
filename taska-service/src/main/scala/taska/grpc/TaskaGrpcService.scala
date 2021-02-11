@@ -28,6 +28,7 @@ import taska.proto.UpdateCardReq.{PUpdateCardDescriptionOp, PUpdateCardTitleOp}
 import taska.proto.UpdateListReq.PUpdateListTitleOp
 import taska.proto.UpdateListReq.Update.Cmd.PUpdateListTitleCmd
 import taska.proto._
+import taska.query.BoardQueryService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
@@ -84,7 +85,8 @@ object TaskaGrpcService {
 class TaskaGrpcService(
     boardEntity: BoardEntity,
     listEntity: ListEntity,
-    cardEntity: CardEntity
+    cardEntity: CardEntity,
+    boardQueryService: BoardQueryService
 ) extends TaskaService
     with GrpcService {
   implicit val timeout: Timeout = 5.seconds
@@ -109,7 +111,7 @@ class TaskaGrpcService(
         req.id,
         replyTo => GetBoard(replyTo)
       )
-      .map(res => GetBoardRes(res.title, res.description))
+      .map(res => GetBoardRes(Some(PBoard(req.id, res.title, res.description))))
   }
 
   override def archiveBoard(req: ArchiveBoardReq): Future[ArchiveBoardRes] = {
@@ -241,5 +243,15 @@ class TaskaGrpcService(
         replyTo => UpdateCard(replyTo, toUpdateCommands(req))
       )
       .map(_ => UpdateCardRes())
+  }
+
+  override def getBoards(request: GetBoardsReq): Future[GetBoardsRes] = {
+    boardQueryService
+      .findAll()
+      .map(res =>
+        GetBoardsRes(
+          res.map(b => PBoard(b.id, b.title, b.description))
+        )
+      )
   }
 }

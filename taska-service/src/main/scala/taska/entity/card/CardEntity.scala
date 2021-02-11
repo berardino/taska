@@ -2,6 +2,7 @@ package taska.entity.card
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import org.springframework.stereotype.Component
+import taska.config.EventProcessorProps
 import taska.entity.{EntityDef, EntitySharding}
 
 object CardEntity extends EntityDef[CardCommand, CardEvent, CardState]("card") {
@@ -12,8 +13,11 @@ object CardEntity extends EntityDef[CardCommand, CardEvent, CardState]("card") {
 }
 
 @Component
-class CardEntity(sharding: ClusterSharding)
-    extends EntitySharding[CardCommand, CardEvent, CardState](
+class CardEntity(
+    sharding: ClusterSharding,
+    eventProcessorProps: EventProcessorProps
+) extends EntitySharding[CardCommand, CardEvent, CardState](
       CardEntity,
-      sharding
+      sharding,
+      eventProcessorProps
     ) {}

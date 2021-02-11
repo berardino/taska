@@ -10,6 +10,7 @@ package taska.proto;
 service TaskaService {
   rpc CreateBoard (CreateBoardReq) returns (CreateBoardRes);
   rpc GetBoard (GetBoardReq) returns (GetBoardRes);
+  rpc GetBoards (GetBoardsReq) returns (GetBoardsRes);
   rpc ArchiveBoard (ArchiveBoardReq) returns (ArchiveBoardRes);
   rpc UnArchiveBoard (UnArchiveBoardReq) returns (UnArchiveBoardRes);
   rpc UpdateBoard (UpdateBoardReq) returns (UpdateBoardRes);

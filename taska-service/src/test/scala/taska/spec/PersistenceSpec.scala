@@ -11,8 +11,8 @@ import taska.entity.{
   CommandEnvelope,
   CommandHeader,
   Event,
-  EventEnvelope,
-  EventHeader
+  EventHeader,
+  PersistEventEnvelope
 }
 import taska.gen.SynthLike
 import taska.request.RequestContext
@@ -40,8 +40,8 @@ abstract class PersistenceSpec[C <: Command, E <: Event, S]
 
   lazy val behaviorTestKit: EventSourcedBehaviorTestKit[CommandEnvelope[
     C
-  ], EventEnvelope[E], S] =
-    EventSourcedBehaviorTestKit[CommandEnvelope[C], EventEnvelope[
+  ], PersistEventEnvelope[E], S] =
+    EventSourcedBehaviorTestKit[CommandEnvelope[C], PersistEventEnvelope[
       E
     ], S](
       system,

@@ -16,7 +16,8 @@ import java.net.InetSocketAddress
 trait GrpcService {
   def bindService: ServerServiceDefinition
   implicit def currentContext: RequestContext =
-    ContextKeys.RequestContextContextKey.get()
+    Option(ContextKeys.RequestContextContextKey.get())
+      .getOrElse(RequestContext())
 }
 
 class GrpcServer(server: Server) {

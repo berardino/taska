@@ -4,6 +4,12 @@ import "google/protobuf/wrappers.proto";
 
 package taska.proto;
 
+message PBoard {
+  string id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
+}
+
 message CreateBoardReq {
   string title = 1;
   google.protobuf.StringValue description = 2;
@@ -18,8 +24,14 @@ message GetBoardReq {
 }
 
 message GetBoardRes {
-  string title = 1;
-  google.protobuf.StringValue description = 2;
+  PBoard board = 1;
+}
+
+message GetBoardsReq {
+}
+
+message GetBoardsRes {
+  repeated PBoard board = 1;
 }
 
 message ArchiveBoardReq {

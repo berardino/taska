@@ -13,6 +13,7 @@ val ScalaTestVersion = "3.2.3"
 val ScalaCheckVersion = "1.15.2"
 val FlywayVersion = "7.4.0"
 val H2Version = "1.4.200"
+val ScalaLoggingVersion = "3.9.2"
 
 enablePlugins(JavaServerAppPackaging)
 
@@ -49,24 +50,27 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion,
   "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-discovery" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-discovery" % AkkaVersion,
   // Akka Persistence
   "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
-  // DB
   "com.lightbend.akka" %% "akka-persistence-jdbc" % AkkaPersistenceJdbc,
+  // Akka Projection
+  "com.lightbend.akka" %% "akka-projection-eventsourced" % AkkaProjectionVersion,
+  "com.lightbend.akka" %% "akka-projection-core" % AkkaProjectionVersion,
+  "com.lightbend.akka" %% "akka-projection-slick" % AkkaProjectionVersion,
+  // DB
   "com.typesafe.slick" %% "slick" % SlickVersion,
   "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
   "org.postgresql" % "postgresql" % PostgresqlVersion,
   "org.flywaydb" % "flyway-core" % FlywayVersion,
   "com.h2database" % "h2" % H2Version,
-// Akka Projection
-  "com.lightbend.akka" %% "akka-projection-eventsourced" % AkkaProjectionVersion,
-  "com.lightbend.akka" %% "akka-projection-cassandra" % AkkaProjectionVersion,
   // Spring
   "org.springframework" % "spring-context" % SpringVersion,
   // Logging
   "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion,
   "ch.qos.logback" % "logback-classic" % LogbackVersion,
+  "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
   // Proto
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
   "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,

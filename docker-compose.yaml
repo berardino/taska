@@ -6,3 +6,10 @@ services:
     ports: 
       - 9901:9901
       - 8081:8081
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: taska
+      POSTGRES_PASSWORD: taska

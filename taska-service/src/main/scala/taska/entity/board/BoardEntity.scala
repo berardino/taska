@@ -2,6 +2,7 @@ package taska.entity.board
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import org.springframework.stereotype.Component
+import taska.config.EventProcessorProps
 import taska.entity.{EntityDef, EntitySharding}
 
 object BoardEntity
@@ -13,8 +14,11 @@ object BoardEntity
 }
 
 @Component
-class BoardEntity(sharding: ClusterSharding)
-    extends EntitySharding[BoardCommand, BoardEvent, BoardState](
+class BoardEntity(
+    sharding: ClusterSharding,
+    eventProcessorProps: EventProcessorProps
+) extends EntitySharding[BoardCommand, BoardEvent, BoardState](
       BoardEntity,
-      sharding
+      sharding,
+      eventProcessorProps
     ) {}
